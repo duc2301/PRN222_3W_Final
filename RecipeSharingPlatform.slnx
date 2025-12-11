@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="RecipeSharingPlatform.Presentation/RecipeSharingPlatform.Presentation.csproj" />
+  <Project Path="RecipeSharingPlatform.Repository/RecipeSharingPlatform.Repository.csproj" />
+  <Project Path="RecipeSharingPlatform.Service/RecipeSharingPlatform.Service.csproj" />
+</Solution>
