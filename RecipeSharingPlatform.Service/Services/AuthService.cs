@@ -21,14 +21,14 @@ namespace RecipeSharingPlatform.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<UserResponseDTO> Login(string username, string password)
+        public async Task<LoginResponseDTO> Login(string username, string password)
         {
             var user = await _unitOfWork.UserRepository.Login(username, password);
             if (user == null)
             {
                 return null;
             }
-            else return _mapper.Map<UserResponseDTO>(user);
+            else return _mapper.Map<LoginResponseDTO>(user);
         }
 
         public Task<UserResponseDTO> Register(string username, string password)

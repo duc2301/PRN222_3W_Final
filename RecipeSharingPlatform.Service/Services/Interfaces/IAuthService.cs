@@ -9,7 +9,7 @@ namespace RecipeSharingPlatform.Service.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<UserResponseDTO> Login(string username, string password);
+        Task<LoginResponseDTO> Login(string username, string password);
         Task<UserResponseDTO> Register(string username, string password);
     }
 }

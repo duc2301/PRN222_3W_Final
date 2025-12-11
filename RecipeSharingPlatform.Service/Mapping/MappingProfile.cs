@@ -16,6 +16,8 @@ namespace RecipeSharingPlatform.Service.Mapping
 
             CreateMap<CreateUserDTO, UserResponseDTO>().ReverseMap();
             CreateMap<UpdateUserDTO, UserResponseDTO>().ReverseMap();
+
+            CreateMap<User, LoginResponseDTO>().ReverseMap();
         }
     }
 }

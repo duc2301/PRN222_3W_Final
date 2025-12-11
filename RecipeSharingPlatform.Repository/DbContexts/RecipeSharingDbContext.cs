@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using RecipeSharingPlatform.Repository.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace RecipeSharingPlatform.Repository.DbContexts;
 
@@ -45,31 +46,17 @@ public partial class RecipeSharingDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("server=(local); database=RecipeSharingDB; uid=sa; pwd=12345; TrustServerCertificate=True;");
-    //public static string GetConnectionString(string connectionStringName)
-    //{
-    //    var config = new ConfigurationBuilder()
-    //        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-    //        .AddJsonFile("appsettings.json")
-    //        .Build();
-
-    //    string connectionString = config.GetConnectionString(connectionStringName);
-    //    return connectionString;
-    //}
-
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //    => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("server=(local); database=RecipeSharingDB; uid=sa; pwd=12345; TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B81F4D6FD");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B871CEFC5");
 
-            entity.HasIndex(e => e.CategoryName, "UQ__Categori__8517B2E0AE754A2C").IsUnique();
+            entity.HasIndex(e => e.CategoryName, "UQ__Categori__8517B2E08CD69599").IsUnique();
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName).HasMaxLength(50);
@@ -79,7 +66,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<Comment>(entity =>
         {
-            entity.HasKey(e => e.CommentId).HasName("PK__Comments__C3B4DFAAC787768F");
+            entity.HasKey(e => e.CommentId).HasName("PK__Comments__C3B4DFAAFCC17F22");
 
             entity.HasIndex(e => e.ParentCommentId, "IX_Comments_ParentCommentID");
 
@@ -111,7 +98,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<CommentLike>(entity =>
         {
-            entity.HasKey(e => e.CommentLikeId).HasName("PK__CommentL__D36E159D223ACAD2");
+            entity.HasKey(e => e.CommentLikeId).HasName("PK__CommentL__D36E159DED551C92");
 
             entity.HasIndex(e => e.CommentId, "IX_CommentLikes_CommentID");
 
@@ -136,7 +123,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<Follower>(entity =>
         {
-            entity.HasKey(e => e.FollowId).HasName("PK__Follower__2CE8108EACB9B8CA");
+            entity.HasKey(e => e.FollowId).HasName("PK__Follower__2CE8108E7D02D8A2");
 
             entity.HasIndex(e => e.FollowerUserId, "IX_Followers_FollowerUserID");
 
@@ -151,7 +138,6 @@ public partial class RecipeSharingDbContext : DbContext
 
             entity.HasOne(d => d.FollowerUser).WithMany(p => p.FollowerFollowerUsers)
                 .HasForeignKey(d => d.FollowerUserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Followers_FollowerUser");
 
             entity.HasOne(d => d.FollowingUser).WithMany(p => p.FollowerFollowingUsers)
@@ -162,7 +148,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<MealPlan>(entity =>
         {
-            entity.HasKey(e => e.MealPlanId).HasName("PK__MealPlan__0620DB56443504F2");
+            entity.HasKey(e => e.MealPlanId).HasName("PK__MealPlan__0620DB56FE05D77E");
 
             entity.HasIndex(e => e.PlanDate, "IX_MealPlans_PlanDate");
 
@@ -183,7 +169,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<MealPlanRecipe>(entity =>
         {
-            entity.HasKey(e => e.MealPlanRecipeId).HasName("PK__MealPlan__DB8DF42438464F93");
+            entity.HasKey(e => e.MealPlanRecipeId).HasName("PK__MealPlan__DB8DF4244529C1CE");
 
             entity.HasIndex(e => e.MealPlanId, "IX_MealPlanRecipes_MealPlanID");
 
@@ -206,7 +192,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<Recipe>(entity =>
         {
-            entity.HasKey(e => e.RecipeId).HasName("PK__Recipes__FDD988D0D7636567");
+            entity.HasKey(e => e.RecipeId).HasName("PK__Recipes__FDD988D03D04DBD1");
 
             entity.HasIndex(e => e.CategoryId, "IX_Recipes_CategoryID");
 
@@ -240,7 +226,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<RecipeImage>(entity =>
         {
-            entity.HasKey(e => e.ImageId).HasName("PK__RecipeIm__7516F4EC01FC3E26");
+            entity.HasKey(e => e.ImageId).HasName("PK__RecipeIm__7516F4EC5A3830E5");
 
             entity.HasIndex(e => new { e.RecipeId, e.ImageOrder }, "IX_RecipeImages_ImageOrder");
 
@@ -259,7 +245,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<RecipeIngredient>(entity =>
         {
-            entity.HasKey(e => e.IngredientId).HasName("PK__RecipeIn__BEAEB27A760B44E5");
+            entity.HasKey(e => e.IngredientId).HasName("PK__RecipeIn__BEAEB27A938C2112");
 
             entity.HasIndex(e => e.RecipeId, "IX_RecipeIngredients_RecipeID");
 
@@ -277,7 +263,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<RecipeLike>(entity =>
         {
-            entity.HasKey(e => e.LikeId).HasName("PK__RecipeLi__A2922CF4749BB356");
+            entity.HasKey(e => e.LikeId).HasName("PK__RecipeLi__A2922CF4BA113ED1");
 
             entity.HasIndex(e => e.RecipeId, "IX_RecipeLikes_RecipeID");
 
@@ -302,7 +288,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<RecipeStep>(entity =>
         {
-            entity.HasKey(e => e.StepId).HasName("PK__RecipeSt__243433378C88623E");
+            entity.HasKey(e => e.StepId).HasName("PK__RecipeSt__243433377DE8AD4B");
 
             entity.HasIndex(e => e.RecipeId, "IX_RecipeSteps_RecipeID");
 
@@ -321,7 +307,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<SavedRecipe>(entity =>
         {
-            entity.HasKey(e => e.SaveId).HasName("PK__SavedRec__1450D386EC35DA34");
+            entity.HasKey(e => e.SaveId).HasName("PK__SavedRec__1450D386715E9DFC");
 
             entity.HasIndex(e => e.RecipeId, "IX_SavedRecipes_RecipeID");
 
@@ -346,7 +332,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<ShoppingList>(entity =>
         {
-            entity.HasKey(e => e.ShoppingListId).HasName("PK__Shopping__6CBBDD7426ACE6D7");
+            entity.HasKey(e => e.ShoppingListId).HasName("PK__Shopping__6CBBDD748C3C1401");
 
             entity.HasIndex(e => e.UserId, "IX_ShoppingLists_UserID");
 
@@ -365,7 +351,7 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<ShoppingListItem>(entity =>
         {
-            entity.HasKey(e => e.ItemId).HasName("PK__Shopping__727E83EB5D808346");
+            entity.HasKey(e => e.ItemId).HasName("PK__Shopping__727E83EBF85EA64F");
 
             entity.HasIndex(e => e.Category, "IX_ShoppingListItems_Category");
 
@@ -394,15 +380,15 @@ public partial class RecipeSharingDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACC4C9EE5B");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC971B7A58");
 
             entity.HasIndex(e => e.Email, "IX_Users_Email");
 
             entity.HasIndex(e => e.Username, "IX_Users_Username");
 
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E4745190F7").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__536C85E49BC028CD").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D105349B77BD73").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534B0286A86").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Bio).HasMaxLength(500);
@@ -412,6 +398,10 @@ public partial class RecipeSharingDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.ProfileImage).HasMaxLength(255);
+            entity.Property(e => e.Role)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasDefaultValue("User");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Username).HasMaxLength(50);
         });
