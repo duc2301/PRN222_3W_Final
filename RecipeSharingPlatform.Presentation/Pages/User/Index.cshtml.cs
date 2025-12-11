@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeSharingPlatform.Service.DTOs.ResponseDTOs;
 using RecipeSharingPlatform.Service.ServiceProviders.Interface;
 
 namespace RecipeSharingPlatform.Presentation.Pages.User
 {
+    [Authorize(Roles = "Admin")]
     public class IndexModel : PageModel
     {
         private readonly IServiceProviders _serviceProviders;

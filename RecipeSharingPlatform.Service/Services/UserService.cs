@@ -51,7 +51,8 @@ namespace RecipeSharingPlatform.Service.Services
         public async Task<UserResponseDTO> Update(UpdateUserDTO user)
         {
             var updatedUser = _mapper.Map<User>(user);
-            updatedUser.UpdatedAt = DateTime.UtcNow;
+            updatedUser.UpdatedAt = DateTime.Now;
+            updatedUser.CreatedAt = (await _unitOfWork.UserRepository.GetByIdAsync(user.UserId)).CreatedAt;
             _unitOfWork.UserRepository.Update(updatedUser);
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<UserResponseDTO>(user);
