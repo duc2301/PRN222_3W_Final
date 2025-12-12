@@ -97,7 +97,7 @@ namespace RecipeSharingPlatform.Service.Services
             await transaction.CommitAsync();
         }
 
-        public async Task AddManualItemAsync(string userId, AddItemDto dto)
+        public async Task<ShoppingListItemDto> AddManualItemAsync(string userId, AddItemDto dto)
         {
             var uid = ParseUserId(userId);
             ValidateManualItem(dto);
@@ -116,10 +116,13 @@ namespace RecipeSharingPlatform.Service.Services
             if (existing != null)
             {
                 existing.Quantity += dto.Quantity;
+                await _context.SaveChangesAsync();
+                list.UpdatedAt = DateTime.UtcNow;
+                return MapItemToDto(existing);
             }
             else
             {
-                list.ShoppingListItems.Add(new ShoppingListItem
+                var newItem = new ShoppingListItem
                 {
                     IngredientName = normalizedName,
                     Quantity = dto.Quantity,
@@ -128,11 +131,12 @@ namespace RecipeSharingPlatform.Service.Services
                     ShoppingListId = list.ShoppingListId,
                     IsChecked = false,
                     CreatedAt = DateTime.UtcNow
-                });
+                };
+                list.ShoppingListItems.Add(newItem);
+                list.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return MapItemToDto(newItem);
             }
-
-            list.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
         }
 
         public async Task ToggleItemAsync(string userId, int itemId, bool isChecked)

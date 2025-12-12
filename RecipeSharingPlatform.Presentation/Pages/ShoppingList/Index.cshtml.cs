@@ -52,8 +52,8 @@ namespace RecipeSharingPlatform.Presentation.Pages.ShoppingList
 
             try
             {
-                await _shoppingListService.AddManualItemAsync(GetUserId(), dto);
-                return Success("Đã thêm item");
+                var item = await _shoppingListService.AddManualItemAsync(GetUserId(), dto);
+                return Success("Đã thêm item", item);
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@
 @model IngredientCalculatorViewModel
 
 @{
-    var antiForgery = Antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+    var antiForgery = Antiforgery.GetAndStoreTokens(Context).RequestToken;
     var ingredientsJson = JsonSerializer.Serialize(Model.Ingredients.Select(i => new
     {
         name = i.Name,

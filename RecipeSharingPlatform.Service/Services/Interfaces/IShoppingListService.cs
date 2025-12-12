@@ -9,7 +9,7 @@ namespace RecipeSharingPlatform.Service.Services.Interfaces
 
         Task AddRecipeToListAsync(string userId, int recipeId, int targetServings);
 
-        Task AddManualItemAsync(string userId, AddItemDto dto);
+        Task<ShoppingListItemDto> AddManualItemAsync(string userId, AddItemDto dto);
 
         Task ToggleItemAsync(string userId, int itemId, bool isChecked);
 

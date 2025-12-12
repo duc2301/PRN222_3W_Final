@@ -32,7 +32,7 @@
         {
             foreach (var group in Model.GroupedItems)
             {
-                <div class="col-12 col-md-6 category-card" data-category="@group.Category">
+                <div class="col-12 col-md-6 category-card" data-category="@group.Category" data-category-key="@group.Category.Trim().ToLower()">
                     <div class="card h-100">
                         <div class="card-header fw-semibold">@group.Category</div>
                         <ul class="list-group list-group-flush">
@@ -100,6 +100,16 @@
         const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]')?.value;
         const container = document.getElementById('shoppingListContainer');
 
+        const normalizeCategoryKey = (c) => {
+            const t = (c || '').trim();
+            return (t || 'Khác').toLowerCase();
+        };
+
+        const displayCategory = (c) => {
+            const t = (c || '').trim();
+            return t || 'Khác';
+        };
+
         const notify = (message, isSuccess = true) => {
             const alert = document.createElement('div');
             alert.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
@@ -113,19 +123,23 @@
         };
 
         const getCategoryCard = (category) => {
-            return container.querySelector(`.category-card[data-category="${category}"]`);
+            const key = normalizeCategoryKey(category);
+            return container.querySelector(`.category-card[data-category-key="${key}"]`);
         };
 
         const ensureCategoryCard = (category) => {
             let card = getCategoryCard(category);
             if (card) return card;
 
+            const key = normalizeCategoryKey(category);
+            const display = displayCategory(category);
             const col = document.createElement('div');
             col.className = 'col-12 col-md-6 category-card';
-            col.dataset.category = category;
+            col.dataset.category = display;
+            col.dataset.categoryKey = key;
             col.innerHTML = `
                 <div class="card h-100">
-                    <div class="card-header fw-semibold">${category}</div>
+                    <div class="card-header fw-semibold">${display}</div>
                     <ul class="list-group list-group-flush"></ul>
                 </div>`;
             container.appendChild(col);
@@ -210,10 +224,10 @@
             const json = await resp.json().catch(() => null);
             if (json?.ok) {
                 container.querySelectorAll('.toggle-item:checked').forEach(cb => {
-                    const li = cb.closest('.shopping-item');
-                    const category = li?.dataset.category;
-                    li?.remove();
-                    const card = getCategoryCard(category);
+                const li = cb.closest('.shopping-item');
+                const category = li?.dataset.category;
+                li?.remove();
+                const card = getCategoryCard(category);
                     if (card && card.querySelectorAll('.shopping-item').length === 0) {
                         card.remove();
                     }
@@ -236,18 +250,20 @@
             });
             const json = await resp.json().catch(() => null);
             if (json?.ok) {
-                const name = formData.get('Name');
-                const quantity = parseFloat(formData.get('Quantity'));
-                const unit = formData.get('Unit');
-                const category = (formData.get('Category') || 'Khác').toString().trim() || 'Khác';
+                const data = json.data || {};
+                const name = data.name || formData.get('Name');
+                const quantity = data.quantity ?? parseFloat(formData.get('Quantity'));
+                const unit = data.unit || formData.get('Unit');
+                const category = displayCategory(data.category || formData.get('Category'));
 
                 const card = ensureCategoryCard(category);
                 const list = card.querySelector('.list-group');
                 list.appendChild(createItemElement({
+                    itemId: data.itemId,
                     name,
                     quantity,
                     unit,
-                    isChecked: false
+                    isChecked: data.isChecked ?? false
                 }, category));
 
                 form.reset();
