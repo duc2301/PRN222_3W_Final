@@ -1,0 +1,263 @@
+@page
+@model RecipeSharingPlatform.Presentation.Pages.ShoppingList.IndexModel
+@{
+    ViewData["Title"] = "Shopping List";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Shopping List</h3>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" id="btnAddManual" data-bs-toggle="modal" data-bs-target="#manualModal">
+                Thêm thủ công
+            </button>
+            <button class="btn btn-outline-danger" id="btnClearCompleted">
+                Xóa Đã Hoàn Thành
+            </button>
+        </div>
+    </div>
+
+    <form id="antiForgeryForm">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div id="shoppingListContainer" class="row g-3">
+        @if (Model.GroupedItems == null || !Model.GroupedItems.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-info">Chưa có item nào trong shopping list.</div>
+            </div>
+        }
+        else
+        {
+            foreach (var group in Model.GroupedItems)
+            {
+                <div class="col-12 col-md-6 category-card" data-category="@group.Category">
+                    <div class="card h-100">
+                        <div class="card-header fw-semibold">@group.Category</div>
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in group.Items)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center shopping-item" data-item-id="@item.ItemId" data-category="@group.Category">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input class="form-check-input toggle-item" type="checkbox" data-item-id="@item.ItemId" @(item.IsChecked == true ? "checked" : "") />
+                                        <div>
+                                            <div class="fw-semibold">@item.Name</div>
+                                            <div class="text-muted small">@item.Quantity.ToString("0.##") @item.Unit</div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-item" data-item-id="@item.ItemId">X</button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Manual add modal -->
+<div class="modal fade" id="manualModal" tabindex="-1" aria-labelledby="manualModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="manualModalLabel">Thêm item thủ công</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="manualForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên</label>
+                        <input type="text" name="Name" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Số lượng</label>
+                            <input type="number" name="Quantity" step="0.01" min="0.01" class="form-control" required />
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Đơn vị</label>
+                            <input type="text" name="Unit" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục (tùy chọn)</label>
+                        <input type="text" name="Category" class="form-control" placeholder="Ví dụ: Rau củ, Thịt, Gia vị" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]')?.value;
+        const container = document.getElementById('shoppingListContainer');
+
+        const notify = (message, isSuccess = true) => {
+            const alert = document.createElement('div');
+            alert.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alert.style.zIndex = 1080;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        };
+
+        const getCategoryCard = (category) => {
+            return container.querySelector(`.category-card[data-category="${category}"]`);
+        };
+
+        const ensureCategoryCard = (category) => {
+            let card = getCategoryCard(category);
+            if (card) return card;
+
+            const col = document.createElement('div');
+            col.className = 'col-12 col-md-6 category-card';
+            col.dataset.category = category;
+            col.innerHTML = `
+                <div class="card h-100">
+                    <div class="card-header fw-semibold">${category}</div>
+                    <ul class="list-group list-group-flush"></ul>
+                </div>`;
+            container.appendChild(col);
+            return col;
+        };
+
+        const createItemElement = (item, category) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center shopping-item';
+            li.dataset.itemId = item.itemId || item.ItemId || item.id;
+            li.dataset.category = category;
+            const qtyRaw = (item.quantity ?? item.Quantity);
+            const qtyNumber = Number(qtyRaw);
+            const qtyDisplay = isNaN(qtyNumber) ? qtyRaw : qtyNumber.toFixed(2);
+            li.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <input class="form-check-input toggle-item" type="checkbox" data-item-id="${li.dataset.itemId}" ${item.isChecked ? 'checked' : ''} />
+                    <div>
+                        <div class="fw-semibold">${item.name || item.Name}</div>
+                        <div class="text-muted small">${qtyDisplay} ${item.unit || item.Unit}</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger delete-item" data-item-id="${li.dataset.itemId}">X</button>
+            `;
+            return li;
+        };
+
+        // Toggle
+        container.addEventListener('change', async (e) => {
+            if (!e.target.classList.contains('toggle-item')) return;
+            const checkbox = e.target;
+            const itemId = checkbox.dataset.itemId;
+            const formData = new FormData();
+            formData.append('itemId', itemId);
+            formData.append('isChecked', checkbox.checked);
+
+            const resp = await fetch('/ShoppingList?handler=ToggleItem', {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token || '' },
+                body: formData
+            });
+            const json = await resp.json().catch(() => null);
+            if (!json?.ok) {
+                checkbox.checked = !checkbox.checked;
+                notify(json?.message || 'Không thể cập nhật', false);
+            }
+        });
+
+        // Delete
+        container.addEventListener('click', async (e) => {
+            if (!e.target.classList.contains('delete-item')) return;
+            const btn = e.target;
+            const itemId = btn.dataset.itemId;
+            const formData = new FormData();
+            formData.append('itemId', itemId);
+
+            const resp = await fetch('/ShoppingList?handler=DeleteItem', {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token || '' },
+                body: formData
+            });
+            const json = await resp.json().catch(() => null);
+            if (json?.ok) {
+                const li = btn.closest('.shopping-item');
+                const category = li?.dataset.category;
+                li?.remove();
+                const card = getCategoryCard(category);
+                if (card && card.querySelectorAll('.shopping-item').length === 0) {
+                    card.remove();
+                }
+            } else {
+                notify(json?.message || 'Không thể xóa', false);
+            }
+        });
+
+        // Clear completed
+        document.getElementById('btnClearCompleted')?.addEventListener('click', async () => {
+            const resp = await fetch('/ShoppingList?handler=ClearCompleted', {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token || '' }
+            });
+            const json = await resp.json().catch(() => null);
+            if (json?.ok) {
+                container.querySelectorAll('.toggle-item:checked').forEach(cb => {
+                    const li = cb.closest('.shopping-item');
+                    const category = li?.dataset.category;
+                    li?.remove();
+                    const card = getCategoryCard(category);
+                    if (card && card.querySelectorAll('.shopping-item').length === 0) {
+                        card.remove();
+                    }
+                });
+                notify(json.message || 'Đã xóa các mục hoàn thành');
+            } else {
+                notify(json?.message || 'Không thể xóa', false);
+            }
+        });
+
+        // Manual add
+        document.getElementById('manualForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const resp = await fetch('/ShoppingList?handler=AddManual', {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token || '' },
+                body: formData
+            });
+            const json = await resp.json().catch(() => null);
+            if (json?.ok) {
+                const name = formData.get('Name');
+                const quantity = parseFloat(formData.get('Quantity'));
+                const unit = formData.get('Unit');
+                const category = (formData.get('Category') || 'Khác').toString().trim() || 'Khác';
+
+                const card = ensureCategoryCard(category);
+                const list = card.querySelector('.list-group');
+                list.appendChild(createItemElement({
+                    name,
+                    quantity,
+                    unit,
+                    isChecked: false
+                }, category));
+
+                form.reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('manualModal'));
+                modal?.hide();
+                notify(json.message || 'Đã thêm item');
+            } else {
+                notify(json?.message || 'Không thể thêm', false);
+            }
+        });
+    })();
+</script>
+

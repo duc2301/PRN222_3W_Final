@@ -12,5 +12,6 @@ namespace RecipeSharingPlatform.Service.ServiceProviders.Interface
     {
         IUserService UserService { get; }
         IAuthService AuthService { get; }
+        IShoppingListService ShoppingListService { get; }
     }
 }
