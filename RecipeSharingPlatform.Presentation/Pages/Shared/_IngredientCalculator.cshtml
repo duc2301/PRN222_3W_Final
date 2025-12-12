@@ -1,0 +1,125 @@
+@using System.Text.Json
+@using RecipeSharingPlatform.Presentation.Models
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@model IngredientCalculatorViewModel
+
+@{
+    var antiForgery = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    var ingredientsJson = JsonSerializer.Serialize(Model.Ingredients.Select(i => new
+    {
+        name = i.Name,
+        quantity = i.Quantity,
+        unit = i.Unit
+    }));
+}
+
+<div class="card mb-4" id="ingredient-calculator"
+     data-recipe-id="@Model.RecipeId"
+     data-base-servings="@Model.BaseServings"
+     data-ingredients='@ingredientsJson'>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <strong>Ingredient Calculator</strong>
+            <small class="text-muted ms-2">(Base @Model.BaseServings servings)</small>
+        </div>
+        <div class="d-flex gap-2">
+            @foreach (var preset in new[] { 2, 4, 6, 8 })
+            {
+                <button type="button" class="btn btn-outline-secondary btn-sm preset-serving" data-servings="@preset">@preset</button>
+            }
+            <div class="input-group input-group-sm" style="width: 150px;">
+                <span class="input-group-text">Servings</span>
+                <input type="number" class="form-control" id="custom-servings" value="@Model.BaseServings" min="1">
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <ul class="list-group" id="ingredient-list"></ul>
+        <div class="mt-3 text-end">
+            <button type="button" id="btn-add-to-shopping" class="btn btn-primary">
+                Thêm vào Shopping List
+            </button>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="ingredientCalculatorAntiforgery" value="@antiForgery" />
+
+<script>
+    (() => {
+        const card = document.getElementById('ingredient-calculator');
+        if (!card) return;
+
+        const baseServings = parseFloat(card.dataset.baseServings);
+        let currentServings = baseServings;
+        const recipeId = parseInt(card.dataset.recipeId);
+        const ingredients = JSON.parse(card.dataset.ingredients || "[]");
+        const listEl = document.getElementById('ingredient-list');
+        const token = document.getElementById('ingredientCalculatorAntiforgery')?.value;
+
+        const render = () => {
+            listEl.innerHTML = '';
+            ingredients.forEach(item => {
+                const scaled = (item.quantity * currentServings / baseServings);
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                const label = document.createElement('div');
+                label.innerHTML = `<strong>${item.name}</strong><div class="text-muted small">${scaled.toFixed(2)} ${item.unit}</div>`;
+                li.appendChild(label);
+                listEl.appendChild(li);
+            });
+        };
+
+        render();
+
+        const updateServings = (value) => {
+            const val = parseFloat(value);
+            if (!isNaN(val) && val > 0) {
+                currentServings = val;
+                render();
+            }
+        };
+
+        document.querySelectorAll('.preset-serving').forEach(btn => {
+            btn.addEventListener('click', () => updateServings(btn.dataset.servings));
+        });
+
+        const customInput = document.getElementById('custom-servings');
+        customInput?.addEventListener('input', e => updateServings(e.target.value));
+
+        const showToast = (message, isSuccess = true) => {
+            const alert = document.createElement('div');
+            alert.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alert.style.zIndex = 1080;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3500);
+        };
+
+        document.getElementById('btn-add-to-shopping')?.addEventListener('click', async () => {
+            const payload = {
+                recipeId,
+                targetServings: Math.round(currentServings)
+            };
+            const resp = await fetch('/ShoppingList?handler=AddRecipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token || ''
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const json = await resp.json().catch(() => null);
+            if (json?.ok) {
+                showToast(json.message || 'Đã thêm vào shopping list');
+            } else {
+                showToast(json?.message || 'Thao tác thất bại', false);
+            }
+        });
+    })();
+</script>
+
