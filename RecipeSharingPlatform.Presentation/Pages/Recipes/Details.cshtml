@@ -1,0 +1,833 @@
+﻿@page "{id:int}"
+@model RecipeSharingPlatform.Presentation.Pages.Recipes.DetailsModel
+@{
+    ViewData["Title"] = Model.Recipe?.Title ?? "Recipe Details";
+}
+<style>
+    :root {
+        --bg: #F6F7F9;
+        --card: #FFFFFF;
+        --text: #0F172A;
+        --muted: #64748B;
+        --line: #E2E8F0;
+        --brand: #4F46E5;
+        --brand2: #EC4899;
+        --shadow: 0 10px 24px rgba(15,23,42,0.06);
+        --shadow2: 0 14px 40px rgba(15,23,42,0.10);
+        --radius: 16px;
+        --radius2: 22px;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    .rd-wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+        font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+        color: var(--text);
+    }
+
+    .rd-back {
+        margin-bottom: 1rem;
+        font-size: 0.92rem;
+        color: var(--muted);
+    }
+
+        .rd-back a {
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+            .rd-back a:hover {
+                text-decoration: underline;
+            }
+
+    .rd-shell {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius2);
+        box-shadow: var(--shadow2);
+        overflow: hidden;
+    }
+
+    .rd-head {
+        padding: 1.25rem 1.35rem 1rem;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .rd-titleblock {
+        min-width: 0;
+    }
+
+    .rd-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .18rem .62rem;
+        border-radius: 999px;
+        background: #EEF2FF;
+        color: var(--brand);
+        font-weight: 800;
+        font-size: .78rem;
+        margin-bottom: .55rem;
+    }
+
+    .rd-title {
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin: 0;
+        line-height: 1.15;
+        word-break: break-word;
+    }
+
+    .rd-actions {
+        display: flex;
+        gap: .55rem;
+        align-items: center;
+        justify-content: flex-end;
+        padding-top: .1rem;
+        flex-shrink: 0;
+    }
+
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+        box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+        text-decoration: none;
+        padding: 0;
+    }
+
+        .icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(15,23,42,0.10);
+            border-color: #CBD5E1;
+        }
+
+    .icon-btn--brand {
+        border: none;
+        color: #fff;
+        background: linear-gradient(135deg,var(--brand),var(--brand2));
+        box-shadow: 0 12px 26px rgba(79,70,229,0.28);
+    }
+
+    .icon-btn--danger {
+        border: none;
+        color: #fff;
+        background: #DC2626;
+        box-shadow: 0 12px 26px rgba(220,38,38,0.22);
+    }
+
+    .icon-btn svg {
+        width: 18px;
+        height: 18px;
+        display: block;
+    }
+
+    .rd-meta {
+        padding: .85rem 1.35rem 1.15rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(79,70,229,0.05), rgba(255,255,255,0));
+    }
+
+    .rd-author {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        min-width: 260px;
+    }
+
+    .rd-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        object-fit: cover;
+        border: 1px solid var(--line);
+        background: #fff;
+    }
+
+    .rd-author-name {
+        font-weight: 850;
+        color: #111827;
+        font-size: .95rem;
+        line-height: 1.1;
+    }
+
+    .rd-author-sub {
+        font-size: .85rem;
+        color: var(--muted);
+        margin-top: .15rem;
+    }
+
+    .rd-stats {
+        display: flex;
+        gap: .65rem;
+        flex-wrap: wrap;
+        align-items: center;
+        color: var(--muted);
+        font-size: .88rem;
+    }
+
+    .rd-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .25rem .58rem;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+    }
+
+    .rd-body {
+        padding: 1.35rem;
+        display: grid;
+        grid-template-columns: minmax(0,2.1fr) minmax(0,1fr);
+        gap: 1.35rem;
+        align-items: start;
+    }
+
+    .rd-main {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.15rem;
+    }
+
+    .rd-side {
+        position: sticky;
+        top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Gallery */
+    .gallery {
+        border-radius: var(--radius2);
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: #0B1220;
+        box-shadow: var(--shadow);
+    }
+
+    .gallery-main {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        overflow: hidden;
+    }
+
+        .gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .gallery-thumbs {
+        display: flex;
+        gap: .55rem;
+        padding: .75rem;
+        overflow-x: auto;
+        background: rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(226,232,240,0.15);
+    }
+
+    .thumb {
+        width: 84px;
+        height: 56px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        opacity: .86;
+        background: rgba(255,255,255,0.08);
+        flex: 0 0 auto;
+        padding: 0;
+    }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .thumb--active {
+        border-color: #FBBF24;
+        opacity: 1;
+    }
+
+    /* Panels */
+    .panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius2);
+        box-shadow: var(--shadow);
+        padding: 1.1rem 1.15rem;
+    }
+
+    .panel-title {
+        font-size: 1.12rem;
+        font-weight: 900;
+        margin: 0 0 .75rem 0;
+        letter-spacing: -0.01em;
+    }
+
+    .panel-text {
+        color: #334155;
+        font-size: .96rem;
+        line-height: 1.75;
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    /* Summary */
+    .summary {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius2);
+        box-shadow: var(--shadow);
+        padding: 1.1rem 1.15rem;
+    }
+
+    .summary-title {
+        font-size: 1rem;
+        font-weight: 950;
+        margin: 0 0 .75rem 0;
+        color: #0F172A;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .75rem;
+    }
+
+    .mini {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: .7rem .75rem;
+        background: #fff;
+    }
+
+    .mini-label {
+        font-size: .74rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: .2rem;
+    }
+
+    .mini-val {
+        font-size: 1.05rem;
+        font-weight: 950;
+        color: #0F172A;
+    }
+
+    .summary-foot {
+        margin-top: .9rem;
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: .88rem;
+    }
+
+    /* Ingredients */
+    .ing-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: .55rem;
+    }
+
+    .ing-item {
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .65rem .75rem;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .ing-name {
+        font-weight: 750;
+        color: #0F172A;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ing-qty {
+        color: var(--muted);
+        font-weight: 850;
+        flex-shrink: 0;
+    }
+
+    /* Steps */
+    .steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+    }
+
+    .step {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fff;
+        overflow: hidden;
+        box-shadow: 0 10px 24px rgba(15,23,42,0.05);
+    }
+
+    .step-top {
+        display: grid;
+        grid-template-columns: auto minmax(0,1fr);
+        gap: .8rem;
+        padding: .9rem 1rem;
+        align-items: start;
+    }
+
+    .step-no {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #EEF2FF;
+        color: var(--brand);
+        font-weight: 950;
+        flex-shrink: 0;
+    }
+
+    .step-desc {
+        color: #334155;
+        line-height: 1.7;
+        font-size: .96rem;
+    }
+
+    .step-img {
+        border-top: 1px solid var(--line);
+        background: #F8FAFC;
+        max-height: 320px;
+        overflow: hidden;
+    }
+
+        .step-img img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+    /* Comments */
+    .comments-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        max-height: 420px;
+        overflow: auto;
+        padding-right: .25rem;
+    }
+
+    .comment {
+        display: flex;
+        gap: .6rem;
+        align-items: flex-start;
+        padding: .65rem .7rem;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .comment-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        object-fit: cover;
+        border: 1px solid var(--line);
+        background: #fff;
+        flex-shrink: 0;
+    }
+
+    .comment-body {
+        min-width: 0;
+    }
+
+    .comment-top {
+        display: flex;
+        gap: .5rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: .18rem;
+    }
+
+    .comment-name {
+        font-weight: 900;
+        color: #0F172A;
+        font-size: .92rem;
+    }
+
+    .comment-time {
+        color: var(--muted);
+        font-size: .82rem;
+    }
+
+    .comment-text {
+        color: #334155;
+        font-size: .92rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .comment-reply {
+        margin-top: .35rem;
+        font-size: .78rem;
+        color: var(--muted);
+        font-weight: 700;
+    }
+
+    /* Footer: bỏ Updated + RecipeId theo yêu cầu */
+    .rd-footer {
+        padding: 1rem 1.35rem 1.15rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: .9rem;
+        display: flex;
+        justify-content: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+        background: #fff;
+    }
+
+    @@media (max-width:980px) {
+        .rd-body {
+            grid-template-columns: minmax(0,1fr);
+        }
+
+        .rd-side {
+            position: static;
+        }
+    }
+
+    @@media (max-width:640px) {
+        .rd-wrap {
+            padding-inline: .75rem;
+        }
+
+        .rd-head {
+            flex-direction: column;
+        }
+
+        .rd-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@if (Model.Recipe == null)
+{
+    <div class="rd-wrap">
+        <p>Recipe not found.</p>
+    </div>
+}
+else
+{
+    var recipe = Model.Recipe;
+    var mainImage = recipe.Images.Any() ? recipe.Images[0].ImageUrl : "https://placehold.co/1200x675?text=Recipe";
+    var avatar = string.IsNullOrEmpty(recipe.AuthorAvatar) ? "https://placehold.co/80x80?text=U" : recipe.AuthorAvatar;
+    var totalMinutes = (recipe.PrepTime ?? 0) + (recipe.CookTime ?? 0);
+
+    <div class="rd-wrap">
+        <div class="rd-back">
+            <a asp-page="/Recipes/Index">&larr; Back</a>
+        </div>
+
+        <div class="rd-shell">
+            <div class="rd-head">
+                <div class="rd-titleblock">
+                    @if (!string.IsNullOrEmpty(recipe.CategoryName))
+                    {
+                        <div class="rd-badge"># @recipe.CategoryName</div>
+                    }
+                    <h1 class="rd-title">@recipe.Title</h1>
+                </div>
+
+                <div class="rd-actions">
+                    <button type="button" class="icon-btn icon-btn--brand" title="Like">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 21s-7-4.35-9.33-8.28C.6 9.4 2.18 6.5 5.2 6.2c1.63-.16 3.17.58 4.02 1.74.85-1.16 2.39-1.9 4.02-1.74 3.02.3 4.6 3.2 2.53 6.52C19 16.65 12 21 12 21Z"
+                                  stroke="white" stroke-width="2" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+
+                    <button type="button" class="icon-btn" title="Comments" id="btnComment">
+
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M21 12c0 4.42-4.03 8-9 8-1.08 0-2.11-.17-3.05-.48L3 21l1.35-3.6C3.5 16.1 3 14.6 3 13c0-4.42 4.03-8 9-8s9 3.58 9 7Z"
+                                  stroke="#0F172A" stroke-width="2" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+
+                    @if (Model.IsOwner)
+                    {
+                        <a asp-page="/Recipes/Edit" asp-route-id="@recipe.RecipeId" class="icon-btn" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 20h9" stroke="#0F172A" stroke-width="2" stroke-linecap="round" />
+                                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+                                      stroke="#0F172A" stroke-width="2" stroke-linejoin="round" />
+                            </svg>
+                        </a>
+
+                        <a asp-page="/Recipes/Delete" asp-route-id="@recipe.RecipeId" class="icon-btn icon-btn--danger" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M3 6h18" stroke="white" stroke-width="2" stroke-linecap="round" />
+                                <path d="M8 6V4h8v2" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <path d="M6 6l1 16h10l1-16" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <path d="M10 11v6M14 11v6" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="rd-meta">
+                <div class="rd-author">
+                    <img src="@avatar" alt="@recipe.AuthorName" class="rd-avatar" />
+                    <div>
+                        <div class="rd-author-name">@recipe.AuthorName</div>
+                        <div class="rd-author-sub">@recipe.CreatedAt?.ToString("dd/MM/yyyy")</div>
+                    </div>
+                </div>
+
+                <div class="rd-stats">
+                    <span class="rd-stat">👁 @recipe.ViewCount</span>
+                    <span class="rd-stat">❤ @recipe.LikesCount</span>
+                    <span class="rd-stat">⏱ @totalMinutes min</span>
+                </div>
+            </div>
+
+            <div class="rd-body">
+                <div class="rd-main">
+                    <div class="gallery">
+                        <div class="gallery-main">
+                            <img id="mainRecipeImage" src="@mainImage" alt="@recipe.Title" />
+                        </div>
+
+                        @if (recipe.Images != null && recipe.Images.Count > 1)
+                        {
+                            <div class="gallery-thumbs">
+                                @for (int i = 0; i < recipe.Images.Count; i++)
+                                {
+                                    var img = recipe.Images[i];
+                                    var active = i == 0 ? "thumb--active" : "";
+                                    <button type="button" class="thumb @active" data-src="@img.ImageUrl" title="Image @i">
+                                        <img src="@img.ImageUrl" alt="Image @i" />
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="panel-title">Description</h2>
+                        <p class="panel-text">@recipe.Description</p>
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="panel-title">Ingredients</h2>
+                        <ul class="ing-list">
+                            @foreach (var ing in recipe.Ingredients)
+                            {
+                                <li class="ing-item">
+                                    <span class="ing-name">@ing.IngredientName</span>
+                                    <span class="ing-qty">@ing.Quantity @ing.Unit</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="panel-title">Steps</h2>
+                        <ul class="steps">
+                            @foreach (var step in recipe.Steps)
+                            {
+                                <li class="step">
+                                    <div class="step-top">
+                                        <div class="step-no">@step.StepNumber</div>
+                                        <div class="step-desc">@step.StepDescription</div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(step.ImageUrl))
+                                    {
+                                        <div class="step-img">
+                                            <img src="@step.ImageUrl" alt="Step @step.StepNumber" />
+                                        </div>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <aside class="rd-side">
+                    <div class="summary">
+                        <div class="summary-title">Quick info</div>
+                        <div class="summary-grid">
+                            <div class="mini">
+                                <div class="mini-label">Prep</div>
+                                <div class="mini-val">@recipe.PrepTime min</div>
+                            </div>
+                            <div class="mini">
+                                <div class="mini-label">Cook</div>
+                                <div class="mini-val">@recipe.CookTime min</div>
+                            </div>
+                            <div class="mini">
+                                <div class="mini-label">Servings</div>
+                                <div class="mini-val">@recipe.Servings</div>
+                            </div>
+                            <div class="mini">
+                                <div class="mini-label">Difficulty</div>
+                                <div class="mini-val">@recipe.Difficulty</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-foot">
+                            <span>💡 Total: <b>@totalMinutes min</b></span>
+                        </div>
+                    </div>
+
+                    <div class="panel" id="socialPanel">
+                        <h2 class="panel-title">Social · @((recipe.Comments == null) ? 0 : recipe.Comments.Count)</h2>
+
+
+                        @if (recipe.Comments != null && recipe.Comments.Any())
+                        {
+                            <div class="comments-wrap" id="commentsList" tabindex="-1">
+
+                                @foreach (var c in recipe.Comments.OrderByDescending(x => x.CreatedAt))
+                                {
+                                    var cAvatar = string.IsNullOrEmpty(c.AuthorAvatar)
+                                    ? "https://placehold.co/80x80?text=U"
+                                    : c.AuthorAvatar;
+
+                                    <div class="comment">
+                                        <img class="comment-avatar" src="@cAvatar" alt="@c.AuthorName" />
+                                        <div class="comment-body">
+                                            <div class="comment-top">
+                                                <span class="comment-name">@c.AuthorName</span>
+                                                <span class="comment-time">@c.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+                                            </div>
+                                            <div class="comment-text">@c.CommentText</div>
+                                            @if (c.ParentCommentId.HasValue)
+                                            {
+                                                <div class="comment-reply">reply</div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="panel-text">No comments yet.</p>
+                        }
+                    </div>
+                </aside>
+            </div>
+
+            <div class="rd-footer">
+                <div>Created: <b>@recipe.CreatedAt?.ToString("dd/MM/yyyy")</b></div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var mainImg = document.getElementById('mainRecipeImage');
+                if (!mainImg) return;
+
+                var thumbs = document.querySelectorAll('.thumb');
+                if (!thumbs || thumbs.length === 0) return;
+
+                thumbs.forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var src = this.getAttribute('data-src');
+                        if (src) mainImg.src = src;
+
+                        thumbs.forEach(function (x) { x.classList.remove('thumb--active'); });
+                        this.classList.add('thumb--active');
+                    });
+                });
+            })();
+
+                     (function () {
+                // Gallery thumbnails
+                var mainImg = document.getElementById('mainRecipeImage');
+                if (mainImg) {
+                    var thumbs = document.querySelectorAll('.thumb');
+                    if (thumbs && thumbs.length > 0) {
+                        thumbs.forEach(function (btn) {
+                            btn.addEventListener('click', function () {
+                                var src = this.getAttribute('data-src');
+                                if (src) mainImg.src = src;
+
+                                thumbs.forEach(function (x) { x.classList.remove('thumb--active'); });
+                                this.classList.add('thumb--active');
+                            });
+                        });
+                    }
+                }
+
+                // Comment icon -> scroll to Social panel + focus comments
+                var btnComment = document.getElementById('btnComment');
+                var socialPanel = document.getElementById('socialPanel');
+                var commentsList = document.getElementById('commentsList');
+
+                if (btnComment && socialPanel) {
+                    btnComment.addEventListener('click', function () {
+                        socialPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                        if (commentsList) {
+                            // Focus after scrolling a bit so it feels natural
+                            setTimeout(function () {
+                                commentsList.focus({ preventScroll: true });
+                            }, 350);
+                        }
+                    });
+                }
+            })();
+        </script>
+    </div>
+}

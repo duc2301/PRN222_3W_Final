@@ -7,6 +7,7 @@ using RecipeSharingPlatform.Repository.Repositories;
 using RecipeSharingPlatform.Repository.Repositories.Interfaces;
 using RecipeSharingPlatform.Repository.UnitOfWork;
 using RecipeSharingPlatform.Repository.UnitOfWork.Interface;
+using RecipeSharingPlatform.Service.Configuration;
 using RecipeSharingPlatform.Service.Mapping;
 using RecipeSharingPlatform.Service.ServiceProviders;
 using RecipeSharingPlatform.Service.ServiceProviders.Interface;
@@ -19,6 +20,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("Cloudinary"));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -43,10 +47,20 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
 
+// Repository
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+
+// Services
+builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
 
 
 
