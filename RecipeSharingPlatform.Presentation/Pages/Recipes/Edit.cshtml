@@ -1,0 +1,733 @@
+﻿@page "{id:int}"
+@model RecipeSharingPlatform.Presentation.Pages.Recipes.EditModel
+@{
+    ViewData["Title"] = "Edit Recipe";
+}
+
+<style>
+    :root{
+        --bg:#F6F7F9;
+        --card:#FFFFFF;
+        --text:#0F172A;
+        --muted:#64748B;
+        --line:#E2E8F0;
+        --brand:#4F46E5;
+        --brand-soft:#EEF2FF;
+        --shadow:0 12px 30px rgba(15,23,42,.06);
+        --radius:18px;
+    }
+
+    body{ background:var(--bg); }
+
+    .er-wrap{
+        max-width:1060px;
+        margin:2rem auto 3rem;
+        padding:0 1.25rem;
+        font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+        color:var(--text);
+    }
+    .er-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:1rem;
+        margin-bottom:1.6rem;
+    }
+    .er-title{
+        font-size:1.8rem;
+        font-weight:800;
+        letter-spacing:-.02em;
+    }
+    .er-sub{
+        font-size:.95rem;
+        color:var(--muted);
+    }
+    .er-back{
+        border-radius:999px;
+        border:1px solid var(--line);
+        padding:.45rem 1.1rem;
+        font-size:.9rem;
+        color:var(--muted);
+        text-decoration:none;
+        background:#F8FAFC;
+    }
+
+    .er-card{
+        background:var(--card);
+        border-radius:var(--radius);
+        border:1px solid var(--line);
+        box-shadow:var(--shadow);
+        padding:1.7rem 1.6rem 1.4rem;
+    }
+
+    .er-grid{
+        display:grid;
+        grid-template-columns:minmax(0,2.1fr) minmax(0,1.4fr);
+        gap:1.4rem;
+    }
+
+    .er-section-title{
+        font-size:1.05rem;
+        font-weight:700;
+        margin-bottom:.75rem;
+    }
+
+    .er-field{ margin-bottom:.85rem; }
+
+    .er-label{
+        display:block;
+        font-size:.9rem;
+        font-weight:650;
+        margin-bottom:.3rem;
+        color:#111827;
+    }
+
+    .er-input,
+    .er-select,
+    .er-textarea{
+        width:100%;
+        border-radius:12px;
+        border:1px solid var(--line);
+        padding:.55rem .8rem;
+        font-size:.92rem;
+        outline:none;
+        background:#F9FAFB;
+    }
+    .er-input:focus,
+    .er-select:focus,
+    .er-textarea:focus{
+        border-color:var(--brand);
+        box-shadow:0 0 0 1px rgba(79,70,229,.25);
+        background:#ffffff;
+    }
+    .er-textarea{
+        min-height:90px;
+        resize:vertical;
+    }
+
+    .er-row{
+        display:flex;
+        gap:.7rem;
+    }
+    .er-row > .er-field{
+        flex:1;
+        margin-bottom:0;
+    }
+
+    .er-tag{
+        font-size:.8rem;
+        color:var(--muted);
+        margin-bottom:.25rem;
+    }
+
+    .er-pill-btn{
+        border-radius:999px;
+        border:1px dashed #CBD5E1;
+        padding:.28rem .8rem;
+        font-size:.8rem;
+        color:#4B5563;
+        background:#F9FAFB;
+        cursor:pointer;
+    }
+
+    /* Ingredients & steps rows (giống Create) */
+    .cr-ing-row,
+    .cr-step-row{
+        display:flex;
+        align-items:flex-start;
+        gap:.5rem;
+        margin-bottom:.55rem;
+    }
+    .cr-ing-name{ flex:1.4; }
+    .cr-ing-qty{ flex:.7; }
+    .cr-ing-unit{ flex:.9; }
+    .cr-step-text{ flex:1; }
+
+    .cr-small-input{
+        width:100%;
+        border-radius:10px;
+        border:1px solid var(--line);
+        padding:.4rem .6rem;
+        font-size:.88rem;
+        background:#F9FAFB;
+        outline:none;
+    }
+    .cr-small-input:focus{
+        border-color:var(--brand);
+        box-shadow:0 0 0 1px rgba(79,70,229,.25);
+        background:#ffffff;
+    }
+
+    .cr-small-textarea{
+        width:100%;
+        min-height:70px;
+        border-radius:10px;
+        border:1px solid var(--line);
+        padding:.45rem .6rem;
+        font-size:.88rem;
+        resize:vertical;
+        background:#F9FAFB;
+        outline:none;
+    }
+    .cr-small-textarea:focus{
+        border-color:var(--brand);
+        box-shadow:0 0 0 1px rgba(79,70,229,.25);
+        background:#ffffff;
+    }
+
+    .cr-remove-btn{
+        border:none;
+        border-radius:999px;
+        width:26px;
+        height:26px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:#F3F4F6;
+        color:#6B7280;
+        font-size:.8rem;
+        cursor:pointer;
+    }
+    .cr-remove-btn:hover{
+        background:#FEE2E2;
+        color:#B91C1C;
+    }
+
+    /* Image zone giống Create */
+    .cr-upload-zone{
+        border-radius:14px;
+        border:1px dashed #CBD5E1;
+        background:#F9FAFB;
+        padding:.9rem .9rem;
+        display:flex;
+        flex-direction:column;
+        align-items:flex-start;
+        cursor:pointer;
+        transition:border-color .15s, background .15s;
+    }
+    .cr-upload-zone:hover{
+        border-color:var(--brand);
+        background:#EEF2FF;
+    }
+    .cr-upload-title{
+        font-size:.9rem;
+        font-weight:600;
+        margin-bottom:.15rem;
+    }
+    .cr-upload-sub{
+        font-size:.8rem;
+        color:var(--muted);
+    }
+
+    .cr-preview{
+        margin-top:.6rem;
+        display:flex;
+        flex-wrap:wrap;
+        gap:.45rem;
+    }
+    .cr-preview-item{
+        position:relative;
+        width:80px;
+        height:80px;
+        border-radius:12px;
+        overflow:hidden;
+        border:1px solid #E2E8F0;
+        background:#CBD5E1;
+    }
+    .cr-preview-item img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        display:block;
+    }
+    .cr-preview-remove{
+        position:absolute;
+        top:3px;
+        right:3px;
+        width:18px;
+        height:18px;
+        border-radius:999px;
+        border:none;
+        background:rgba(15,23,42,.88);
+        color:#ffffff;
+        font-size:11px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+    }
+    .cr-preview-remove:hover{
+        background:#DC2626;
+    }
+
+    /* Visibility switch */
+    .er-switch-row{
+        margin-top:1.4rem;
+        padding:.95rem 1.05rem;
+        border-radius:16px;
+        background:#F1F5F9;
+        border:1px solid #E2E8F0;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:1rem;
+    }
+    .er-switch-text{
+        font-size:.9rem;
+        color:#334155;
+    }
+    .er-switch-text span{
+        display:block;
+        font-size:.8rem;
+        color:#94A3B8;
+        margin-top:.2rem;
+    }
+
+    .er-switch{
+        position:relative;
+        width:48px;
+        height:26px;
+    }
+    .er-switch input{
+        opacity:0;
+        width:0;
+        height:0;
+    }
+    .er-slider{
+        position:absolute;
+        inset:0;
+        border-radius:999px;
+        background:#CBD5E1;
+        cursor:pointer;
+        transition:.2s;
+    }
+    .er-slider:before{
+        position:absolute;
+        content:"";
+        width:20px;
+        height:20px;
+        left:4px;
+        top:3px;
+        border-radius:999px;
+        background:#FFF;
+        box-shadow:0 2px 6px rgba(15,23,42,.25);
+        transition:.2s;
+    }
+    .er-switch input:checked + .er-slider{
+        background:#4F46E5;
+    }
+    .er-switch input:checked + .er-slider:before{
+        transform:translateX(20px);
+    }
+
+    .er-footer{
+        margin-top:1.5rem;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:1rem;
+    }
+    .er-note{
+        font-size:.82rem;
+        color:#94A3B8;
+    }
+    .er-btn-primary{
+        border:none;
+        border-radius:999px;
+        padding:.55rem 1.5rem;
+        font-size:.95rem;
+        font-weight:650;
+        color:#ffffff;
+        background:linear-gradient(135deg,#4F46E5,#6366F1);
+        box-shadow:0 12px 28px rgba(79,70,229,.35);
+        cursor:pointer;
+    }
+    .er-btn-primary:hover{
+        filter:brightness(1.03);
+    }
+
+    .er-validation{
+        color:#DC2626;
+        font-size:.85rem;
+        margin-bottom:.6rem;
+    }
+</style>
+
+<div class="er-wrap">
+    <div class="er-header">
+        <div>
+            <div class="er-title">Edit recipe</div>
+            <div class="er-sub">
+                Chỉnh sửa thông tin, nguyên liệu, bước làm, hình ảnh và chế độ công khai.
+            </div>
+        </div>
+        <a asp-page="Details" asp-route-id="@Model.Recipe.RecipeId" class="er-back">
+            ← Quay lại chi tiết
+        </a>
+    </div>
+
+    <div class="er-card">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="er-validation"></div>
+            <input type="hidden" asp-for="Recipe.RecipeId" />
+
+            <div class="er-grid">
+                <!-- Cột trái: basic + ingredients + steps -->
+                <div>
+                    <div class="er-section-title">Thông tin cơ bản</div>
+
+                    <div class="er-field">
+                        <label class="er-label" asp-for="Recipe.Title"></label>
+                        <input class="er-input" asp-for="Recipe.Title" />
+                        <span asp-validation-for="Recipe.Title" class="er-validation"></span>
+                    </div>
+
+                    <div class="er-field">
+                        <label class="er-label" asp-for="Recipe.Description"></label>
+                        <textarea class="er-textarea er-input" asp-for="Recipe.Description"></textarea>
+                        <span asp-validation-for="Recipe.Description" class="er-validation"></span>
+                    </div>
+
+                    <div class="er-section-title" style="margin-top:1.1rem;">Ingredients</div>
+                    <div class="er-tag">
+                        Chỉ những dòng có tên nguyên liệu mới được lưu lại.
+                    </div>
+
+                    <div class="er-field" style="margin-bottom:.5rem;">
+                        <button type="button" id="btnAddIngredient" class="er-pill-btn">
+                            + Add ingredient
+                        </button>
+                    </div>
+
+                    <div id="ingredientRows">
+                        @if (Model.Recipe.Ingredients != null)
+                        {
+                            for (int i = 0; i < Model.Recipe.Ingredients.Count; i++)
+                            {
+                                <div class="cr-ing-row">
+                                    <div class="cr-ing-name">
+                                        <input class="cr-small-input"
+                                               asp-for="Recipe.Ingredients[i].IngredientName" />
+                                    </div>
+                                    <div class="cr-ing-qty">
+                                        <input class="cr-small-input" type="number" step="0.1"
+                                               asp-for="Recipe.Ingredients[i].Quantity" />
+                                    </div>
+                                    <div class="cr-ing-unit">
+                                        <input class="cr-small-input"
+                                               asp-for="Recipe.Ingredients[i].Unit" />
+                                    </div>
+                                    <button type="button" class="cr-remove-btn">✕</button>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="er-section-title" style="margin-top:1.1rem;">Steps</div>
+                    <div class="er-tag">
+                        Mỗi ô tương ứng một bước. Bước để trống sẽ không được lưu.
+                    </div>
+
+                    <div class="er-field" style="margin-bottom:.5rem;">
+                        <button type="button" id="btnAddStep" class="er-pill-btn">
+                            + Add step
+                        </button>
+                    </div>
+
+                    <div id="stepRows">
+                        @if (Model.Recipe.Steps != null)
+                        {
+                            for (int i = 0; i < Model.Recipe.Steps.Count; i++)
+                            {
+                                <div class="cr-step-row">
+                                    <div class="cr-step-text">
+                                        <textarea class="cr-small-textarea"
+                                                  asp-for="Recipe.Steps[i].StepDescription"></textarea>
+                                    </div>
+                                    <button type="button" class="cr-remove-btn">✕</button>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Cột phải: category, time, difficulty, images, visibility -->
+                <div>
+                    <div class="er-section-title">Phân loại & thời gian</div>
+
+                    <div class="er-field">
+                        <label class="er-label" asp-for="Recipe.CategoryId">Category</label>
+                        <select class="er-select" asp-for="Recipe.CategoryId" asp-items="Model.CategoryOptions">
+                            <option value="">-- No category --</option>
+                        </select>
+                    </div>
+
+                    <div class="er-field">
+                        <div class="er-tag">Thời gian & khẩu phần</div>
+                        <div class="er-row">
+                            <div class="er-field">
+                                <label class="er-label" asp-for="Recipe.PrepTime">Prep (min)</label>
+                                <input class="er-input" type="number" asp-for="Recipe.PrepTime" />
+                            </div>
+                            <div class="er-field">
+                                <label class="er-label" asp-for="Recipe.CookTime">Cook (min)</label>
+                                <input class="er-input" type="number" asp-for="Recipe.CookTime" />
+                            </div>
+                            <div class="er-field">
+                                <label class="er-label" asp-for="Recipe.Servings">Servings</label>
+                                <input class="er-input" type="number" asp-for="Recipe.Servings" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="er-field">
+                        <label class="er-label" asp-for="Recipe.Difficulty">Difficulty</label>
+                        <select class="er-select" asp-for="Recipe.Difficulty">
+                            <option value="">Not set</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="er-section-title" style="margin-top:1.1rem;">Images</div>
+
+                    @* ảnh cũ *@
+                    @if (Model.ExistingImageUrls != null && Model.ExistingImageUrls.Any())
+                    {
+                        <div class="er-tag">Ảnh hiện tại</div>
+                        <div id="existingImagePreview" class="cr-preview">
+                            @foreach (var url in Model.ExistingImageUrls)
+                            {
+                                <div class="cr-preview-item">
+                                    <button type="button" class="cr-preview-remove">✕</button>
+                                    <img src="@url" alt="Recipe image" />
+                                    <input type="hidden" name="ExistingImageUrls" value="@url" />
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="er-tag" style="margin-top:.8rem;">
+                        Ảnh mới (tuỳ chọn) – các ảnh giữ lại + ảnh mới sẽ trở thành bộ ảnh cuối cùng.
+                    </div>
+
+                    <div id="uploadZone" class="cr-upload-zone">
+                        <div class="cr-upload-title">Click để chọn ảnh hoặc kéo thả vào đây</div>
+                        <div class="cr-upload-sub">Hỗ trợ nhiều ảnh, mỗi ảnh tối đa ~10MB.</div>
+                        <input asp-for="NewImages"
+                               type="file"
+                               multiple
+                               accept="image/*"
+                               id="NewImagesInput"
+                               style="display:none;" />
+                        <div id="imagePreview" class="cr-preview"></div>
+                    </div>
+
+                    <div class="er-switch-row">
+                        <div class="er-switch-text">
+                            Chế độ hiển thị
+                            <span>
+                                Bật để công khai cho cộng đồng. Tắt để chuyển công thức về chế độ riêng tư.
+                            </span>
+                        </div>
+                        <label class="er-switch">
+                            <input type="checkbox" asp-for="Recipe.IsPublic" />
+                            <span class="er-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="er-footer">
+                <div class="er-note">
+                    Các thay đổi (nguyên liệu, bước làm, ảnh, chế độ công khai) sẽ áp dụng sau khi lưu.
+                </div>
+                <button type="submit" class="er-btn-primary">
+                    Save changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            // =========== IMAGE UPLOAD (giống Create) ===========
+            var uploadZone = document.getElementById("uploadZone");
+            var fileInput = document.getElementById("NewImagesInput");
+            var preview = document.getElementById("imagePreview");
+            var selectedFiles = [];
+
+            function syncFileInput() {
+                var dt = new DataTransfer();
+                selectedFiles.forEach(function (file) {
+                    dt.items.add(file);
+                });
+                fileInput.files = dt.files;
+            }
+
+            function addFiles(files) {
+                if (!files) return;
+                Array.from(files).forEach(function (file) {
+                    if (file && file.type && file.type.startsWith("image/")) {
+                        selectedFiles.push(file);
+                    }
+                });
+                syncFileInput();
+                renderPreviews();
+            }
+
+            function renderPreviews() {
+                preview.innerHTML = "";
+                if (!selectedFiles || selectedFiles.length === 0) {
+                    return;
+                }
+
+                selectedFiles.forEach(function (file, index) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var wrapper = document.createElement("div");
+                        wrapper.className = "cr-preview-item";
+                        wrapper.setAttribute("data-index", index.toString());
+
+                        wrapper.innerHTML =
+                            '<button type="button" class="cr-preview-remove">✕</button>' +
+                            '<img src="' + e.target.result + '" alt="preview" />';
+
+                        preview.appendChild(wrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            uploadZone.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            uploadZone.addEventListener("dragover", function (e) {
+                e.preventDefault();
+            });
+
+            uploadZone.addEventListener("drop", function (e) {
+                e.preventDefault();
+                if (e.dataTransfer && e.dataTransfer.files) {
+                    addFiles(e.dataTransfer.files);
+                }
+            });
+
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    addFiles(fileInput.files);
+                }
+            });
+
+            preview.addEventListener("click", function (e) {
+                if (e.target.classList.contains("cr-preview-remove")) {
+                    var wrapper = e.target.closest(".cr-preview-item");
+                    if (!wrapper) return;
+
+                    var indexStr = wrapper.getAttribute("data-index");
+                    var index = parseInt(indexStr);
+                    if (isNaN(index)) return;
+
+                    selectedFiles.splice(index, 1);
+                    syncFileInput();
+                    renderPreviews();
+                }
+            });
+
+            // =========== EXISTING IMAGE REMOVE ===========
+            var existingPreview = document.getElementById("existingImagePreview");
+            if (existingPreview) {
+                existingPreview.addEventListener("click", function (e) {
+                    if (e.target.classList.contains("cr-preview-remove")) {
+                        var wrapper = e.target.closest(".cr-preview-item");
+                        if (wrapper) {
+                            existingPreview.removeChild(wrapper);
+                        }
+                    }
+                });
+            }
+
+            // =========== DYNAMIC INGREDIENTS ===========
+            var ingContainer = document.getElementById("ingredientRows");
+            var btnAddIngredient = document.getElementById("btnAddIngredient");
+            var ingredientIndex = @((Model.Recipe.Ingredients != null ? Model.Recipe.Ingredients.Count : 0));
+
+            function addIngredientRow() {
+                var row = document.createElement("div");
+                row.className = "cr-ing-row";
+                row.innerHTML =
+                    '<div class="cr-ing-name">' +
+                        '<input class="cr-small-input" ' +
+                        'name="Recipe.Ingredients[' + ingredientIndex + '].IngredientName" ' +
+                        'placeholder="Ingredient name" />' +
+                    '</div>' +
+                    '<div class="cr-ing-qty">' +
+                        '<input class="cr-small-input" type="number" step="0.1" ' +
+                        'name="Recipe.Ingredients[' + ingredientIndex + '].Quantity" ' +
+                        'placeholder="Qty" />' +
+                    '</div>' +
+                    '<div class="cr-ing-unit">' +
+                        '<input class="cr-small-input" ' +
+                        'name="Recipe.Ingredients[' + ingredientIndex + '].Unit" ' +
+                        'placeholder="Unit" />' +
+                    '</div>' +
+                    '<button type="button" class="cr-remove-btn">✕</button>';
+
+                ingContainer.appendChild(row);
+                ingredientIndex++;
+            }
+
+            btnAddIngredient.addEventListener("click", function () {
+                addIngredientRow();
+            });
+
+            ingContainer.addEventListener("click", function (e) {
+                if (e.target.classList.contains("cr-remove-btn")) {
+                    var row = e.target.closest(".cr-ing-row");
+                    if (row) {
+                        ingContainer.removeChild(row);
+                    }
+                }
+            });
+
+            // =========== DYNAMIC STEPS ===========
+            var stepContainer = document.getElementById("stepRows");
+            var btnAddStep = document.getElementById("btnAddStep");
+            var stepIndex = @((Model.Recipe.Steps != null ? Model.Recipe.Steps.Count : 0));
+
+            function addStepRow() {
+                var row = document.createElement("div");
+                row.className = "cr-step-row";
+                row.innerHTML =
+                    '<div class="cr-step-text">' +
+                        '<textarea class="cr-small-textarea" ' +
+                        'name="Recipe.Steps[' + stepIndex + '].StepDescription" ' +
+                        'placeholder="Describe the step..."></textarea>' +
+                    '</div>' +
+                    '<button type="button" class="cr-remove-btn">✕</button>';
+
+                stepContainer.appendChild(row);
+                stepIndex++;
+            }
+
+            btnAddStep.addEventListener("click", function () {
+                addStepRow();
+            });
+
+            stepContainer.addEventListener("click", function (e) {
+                if (e.target.classList.contains("cr-remove-btn")) {
+                    var row = e.target.closest(".cr-step-row");
+                    if (row) {
+                        stepContainer.removeChild(row);
+                    }
+                }
+            });
+        })();
+    </script>
+}

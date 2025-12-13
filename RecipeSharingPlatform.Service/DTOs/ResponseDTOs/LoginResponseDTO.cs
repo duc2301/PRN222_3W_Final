@@ -9,7 +9,6 @@ namespace RecipeSharingPlatform.Service.DTOs.ResponseDTOs
     public class LoginResponseDTO
     {
         public int UserId { get; set; }
-
         public string Username { get; set; } = null!;
 
         public string? ProfileImage { get; set; }
