@@ -10,6 +10,8 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork.Interface
     public interface IUnitOfWork
     {
         IUserRepository UserRepository { get; }
+        IRecipeRepository RecipeRepository { get; }
+        ICategoryRepository CategoryRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

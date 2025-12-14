@@ -9,9 +9,15 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork
     {
         private readonly RecipeSharingDbContext _context;
 
-        public UnitOfWork(RecipeSharingDbContext context)
+        public IRecipeRepository RecipeRepository { get; }
+        public ICategoryRepository CategoryRepository { get; }
+
+        public UnitOfWork(RecipeSharingDbContext context, IRecipeRepository recipeRepository,
+        ICategoryRepository categoryRepository)
         {
             _context = context;
+            RecipeRepository = recipeRepository;
+            CategoryRepository = categoryRepository;
         }
 
         private IUserRepository _userRepository;
@@ -20,6 +26,10 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+        public void Dispose()
+        {
+            _context.Dispose();
         }
     }
 }

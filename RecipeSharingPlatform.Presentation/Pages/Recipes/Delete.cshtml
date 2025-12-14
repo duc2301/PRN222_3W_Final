@@ -1,0 +1,216 @@
+﻿@page "{id:int}"
+@model RecipeSharingPlatform.Presentation.Pages.Recipes.DeleteModel
+@{
+    ViewData["Title"] = "Delete Recipe";
+}
+<style>
+    :root {
+        --bg: #F6F7F9;
+        --card: #FFFFFF;
+        --text: #0F172A;
+        --muted: #64748B;
+        --line: #E2E8F0;
+        --danger: #EF4444;
+        --danger-soft: #FEE2E2;
+        --shadow: 0 12px 30px rgba(15,23,42,.06);
+        --radius: 18px;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    .dr-wrap {
+        max-width: 720px;
+        margin: 2.5rem auto 3rem;
+        padding: 0 1.25rem;
+        font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+        color: var(--text);
+    }
+
+    .dr-card {
+        background: var(--card);
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        padding: 1.9rem 1.7rem 1.5rem;
+    }
+
+    .dr-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .dr-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--danger-soft);
+        color: var(--danger);
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .dr-title {
+        font-size: 1.3rem;
+        font-weight: 750;
+        margin-bottom: .25rem;
+    }
+
+    .dr-sub {
+        font-size: .93rem;
+        color: var(--muted);
+    }
+
+    .dr-body {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .dr-thumb {
+        width: 96px;
+        height: 96px;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+        background: #E5E7EB;
+        flex-shrink: 0;
+    }
+
+        .dr-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .dr-info-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: .2rem;
+    }
+
+    .dr-info-text {
+        font-size: .9rem;
+        color: #6B7280;
+    }
+
+    .dr-warning-box {
+        margin-top: 1.2rem;
+        padding: .75rem .85rem;
+        border-radius: 12px;
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        font-size: .85rem;
+        color: #B91C1C;
+    }
+
+    .dr-footer {
+        margin-top: 1.6rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dr-back-link {
+        font-size: .86rem;
+        color: #6B7280;
+        text-decoration: none;
+    }
+
+    .dr-btn-cancel {
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #F9FAFB;
+        padding: .45rem 1.2rem;
+        font-size: .9rem;
+        color: #374151;
+        cursor: pointer;
+        margin-right: .5rem;
+    }
+
+    .dr-btn-delete {
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(135deg,#EF4444,#DC2626);
+        color: #ffffff;
+        padding: .5rem 1.4rem;
+        font-size: .92rem;
+        font-weight: 650;
+        cursor: pointer;
+        box-shadow: 0 12px 26px rgba(239,68,68,.35);
+    }
+
+        .dr-btn-delete:hover {
+            filter: brightness(1.02);
+        }
+
+    @@media (max-width:640px) {
+        .dr-body {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="dr-wrap">
+    <div class="dr-card">
+        <div class="dr-header">
+            <div class="dr-icon">!</div>
+            <div>
+                <div class="dr-title">Delete this recipe?</div>
+                <div class="dr-sub">
+                    Hành động này không thể hoàn tác. Công thức sẽ bị xoá khỏi trang chủ,
+                    tìm kiếm, danh sách lưu và mọi nơi khác.
+                </div>
+            </div>
+        </div>
+
+        <div class="dr-body">
+            @if (!string.IsNullOrEmpty(Model.FirstImageUrl))
+            {
+                <div class="dr-thumb">
+                    <img src="@Model.FirstImageUrl" alt="Recipe thumbnail" />
+                </div>
+            }
+
+            <div>
+                <div class="dr-info-title">@Model.Title</div>
+                <div class="dr-info-text">
+                    Recipe ID: @Model.RecipeId
+                </div>
+            </div>
+        </div>
+
+        <div class="dr-warning-box">
+            Sau khi xoá, bạn sẽ không thể khôi phục lại công thức này. Nếu bạn chỉ muốn ẩn tạm thời,
+            hãy quay lại trang Edit và chuyển chế độ sang <strong>private</strong> thay vì xoá.
+        </div>
+
+        <div class="dr-footer">
+            <a class="dr-back-link" asp-page="Details" asp-route-id="@Model.RecipeId">
+                ← Quay lại trang chi tiết
+            </a>
+
+            <div>
+                <a asp-page="Details" asp-route-id="@Model.RecipeId" class="dr-btn-cancel">
+                    Cancel
+                </a>
+
+                <form method="post" style="display:inline;">
+                    <button type="submit" class="dr-btn-delete">
+                        Delete recipe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
