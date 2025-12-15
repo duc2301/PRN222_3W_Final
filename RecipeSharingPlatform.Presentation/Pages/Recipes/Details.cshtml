@@ -732,11 +732,9 @@ else
                     <div class="panel" id="socialPanel">
                         <h2 class="panel-title">Social · @((recipe.Comments == null) ? 0 : recipe.Comments.Count)</h2>
 
-
                         @if (recipe.Comments != null && recipe.Comments.Any())
                         {
                             <div class="comments-wrap" id="commentsList" tabindex="-1">
-
                                 @foreach (var c in recipe.Comments.OrderByDescending(x => x.CreatedAt))
                                 {
                                     var cAvatar = string.IsNullOrEmpty(c.AuthorAvatar)
@@ -758,7 +756,7 @@ else
                                         </div>
                                     </div>
                                 }
-                            </div>
+                            </div>  
                         }
                         else
                         {
@@ -772,6 +770,8 @@ else
                 <div>Created: <b>@recipe.CreatedAt?.ToString("dd/MM/yyyy")</b></div>
             </div>
         </div>
+
+        <iframe src="/Recipes/Comments?recipeId=@recipe.RecipeId" style="width:100%;border:none;" height="600"></iframe>
 
         <script>
             (function () {

@@ -51,6 +51,7 @@ builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 
 // Services
@@ -61,7 +62,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
+
+builder.Services.AddSignalR();
 
 
 
@@ -85,5 +89,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapHub<CommentHub>("/commentHub");
 
 app.Run();

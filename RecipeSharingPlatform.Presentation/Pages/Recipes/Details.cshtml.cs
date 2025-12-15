@@ -17,6 +17,7 @@ namespace RecipeSharingPlatform.Presentation.Pages.Recipes
 
         public RecipeDetailDTO? Recipe { get; set; }
         public bool IsOwner { get; set; }
+        public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -43,7 +44,28 @@ namespace RecipeSharingPlatform.Presentation.Pages.Recipes
 
             IsOwner = currentUserId.HasValue && Recipe.UserId == currentUserId.Value;
 
+            // Map RecipeCommentDTO to CommentDto
+            Comments = Recipe.Comments?
+                .Select(c => MapRecipeCommentDtoToCommentDto(c))
+                .ToList() ?? new List<CommentDto>();
+
             return Page();
+        }
+
+        private CommentDto MapRecipeCommentDtoToCommentDto(RecipeCommentDTO c)
+        {
+            return new CommentDto
+            {
+                CommentId = c.CommentId,
+                RecipeId = c.RecipeId,
+                UserId = c.UserId,
+                Username = c.AuthorName,
+                AvatarUrl = c.AuthorAvatar,
+                CommentText = c.CommentText,
+                Rating = null, // If you have a Rating property, map it here
+                CreatedAt = c.CreatedAt,
+                Replies = c.Replies?.Select(r => MapRecipeCommentDtoToCommentDto(r)).ToList() ?? new List<CommentDto>()
+            };
         }
     }
 }

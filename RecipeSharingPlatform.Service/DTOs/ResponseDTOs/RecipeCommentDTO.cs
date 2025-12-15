@@ -19,5 +19,8 @@ namespace RecipeSharingPlatform.Service.DTOs.ResponseDTOs
         public string? AuthorAvatar { get; set; }
 
         public int? ParentCommentId { get; set; }
+
+        // Add this property for nested replies
+        public List<RecipeCommentDTO> Replies { get; set; } = new();
     }
 }
