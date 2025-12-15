@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
 public class CommentHub : Hub
@@ -18,8 +18,19 @@ public class CommentHub : Hub
         await Clients.Group($"recipe-{recipeId}").SendAsync("ReceiveComment", comment);
     }
 
-    public async Task SendLike(string recipeId, object likeInfo)
+    // Like Recipe
+    public async Task SendLike(int recipeId, object likeInfo)
     {
-        await Clients.Group(recipeId).SendAsync("ReceiveLike", likeInfo);
+        await Clients.Group($"recipe-{recipeId}").SendAsync("ReceiveLike", likeInfo);
+    }
+
+    // --- NEW: Like Comment ---
+    public async Task SendCommentLike(int recipeId, int commentId, int newCount)
+    {
+        await Clients.Group($"recipe-{recipeId}").SendAsync("ReceiveCommentLike", commentId, newCount);
+    }
+    public async Task SendCommentDelete(int recipeId, int commentId)
+    {
+        await Clients.Group($"recipe-{recipeId}").SendAsync("ReceiveCommentDelete", commentId);
     }
 }

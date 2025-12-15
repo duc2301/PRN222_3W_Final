@@ -1,3 +1,4 @@
+namespace RecipeSharingPlatform.Service.DTOs.RequestDTOs;
 public class CommentCreateDto
 {
     public int RecipeId { get; set; }

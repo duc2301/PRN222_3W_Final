@@ -84,7 +84,8 @@ public partial class RecipeSharingDbContext : DbContext
 
             entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                 .HasForeignKey(d => d.ParentCommentId)
-                .HasConstraintName("FK_Comments_ParentComment");
+                .HasConstraintName("FK_Comments_ParentComment")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Recipe).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.RecipeId)
