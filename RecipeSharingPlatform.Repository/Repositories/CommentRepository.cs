@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using RecipeSharingPlatform.Repository.DbContexts;
 using RecipeSharingPlatform.Repository.Models;
-
+using RecipeSharingPlatform.Repository.Repositories.Interfaces;
+namespace RecipeSharingPlatform.Repository.Repositories;
 public class CommentRepository : ICommentRepository
 {
     private readonly RecipeSharingDbContext _context;
@@ -29,5 +30,16 @@ public class CommentRepository : ICommentRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+    public async Task<Comment?> GetByIdAsync(int id)
+    {
+        return await _context.Comments
+            .Include(c => c.InverseParentComment) // Include replies to handle cascade delete if needed
+            .FirstOrDefaultAsync(c => c.CommentId == id);
+    }
+
+    public void Delete(Comment comment)
+    {
+        _context.Comments.Remove(comment);
     }
 }

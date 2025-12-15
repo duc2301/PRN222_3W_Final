@@ -1,6 +1,9 @@
 using RecipeSharingPlatform.Repository.Models;
 using RecipeSharingPlatform.Repository.Repositories.Interfaces;
-
+using RecipeSharingPlatform.Service.DTOs.RequestDTOs;
+using RecipeSharingPlatform.Service.DTOs.ResponseDTOs;
+using RecipeSharingPlatform.Service.Services.Interfaces;
+namespace RecipeSharingPlatform.Service.Services;
 public class CommentService : ICommentService
 {
     private readonly ICommentRepository _commentRepository;
@@ -37,7 +40,19 @@ public class CommentService : ICommentService
         comment.User = user;
         return MapToDto(comment);
     }
+    public async Task<bool> DeleteCommentAsync(int commentId, int userId)
+    {
+        var comment = await _commentRepository.GetByIdAsync(commentId);
 
+        if (comment == null) return false;
+
+        // Check if the user requesting delete is the owner
+        if (comment.UserId != userId) return false;
+
+        _commentRepository.Delete(comment);
+        await _commentRepository.SaveChangesAsync();
+        return true;
+    }
     private CommentDto MapToDto(Comment comment)
     {
         return new CommentDto
