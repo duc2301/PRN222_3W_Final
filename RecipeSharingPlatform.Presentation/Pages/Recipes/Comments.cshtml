@@ -1,0 +1,521 @@
+﻿@page
+@model RecipeSharingPlatform.Presentation.Pages.Recipes.CommentsModel
+@using RecipeSharingPlatform.Service.DTOs
+@using System.Security.Claims
+@{
+    Layout = null;
+    var recipeId = (int)ViewData["RecipeId"];
+
+    // Get current user ID from claims
+    int? currentUserId = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        string? userIdValue = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                             User.FindFirst("UserId")?.Value;
+        if (int.TryParse(userIdValue, out var parsed))
+        {
+            currentUserId = parsed;
+        }
+    }
+}
+<div class="comment-shell">
+    <div id="comment-section">
+        @if (currentUserId.HasValue)
+        {
+            <form id="comment-form" autocomplete="off">
+                <input type="hidden" id="recipeId" value="@recipeId" />
+                <input type="hidden" id="userId" value="@currentUserId" />
+                <textarea id="comment-content" required placeholder="Add a comment..." class="form-control mb-2"></textarea>
+                <select id="comment-rating" class="form-select mb-2">
+                    <option value="">Rating (optional)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Star@(i > 1 ? "s" : "")</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                Please <a href="/Account/Login">login</a> to add comments.
+            </div>
+        }
+
+        <div id="comments-list" class="comments-wrap mt-3">
+            @if (Model.Comments?.Any() == true)
+            {
+                @foreach (var comment in Model.Comments)
+                {
+                    <div class="comment" data-id="@comment.CommentId">
+                        <img src="@comment.AvatarUrl" class="comment-avatar" alt="@comment.Username" />
+                        <div class="comment-body">
+                            <div class="comment-top">
+                                <span class="comment-name">@comment.Username</span>
+                                <span class="comment-time">
+                                    @(comment.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")
+                                </span>
+                            </div>
+                            <div class="comment-text">@comment.CommentText</div>
+                            @if (comment.Rating.HasValue)
+                            {
+                                <div class="comment-rating">
+                                    <span class="rating-stars">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span>@(i <= comment.Rating.Value ? "★" : "☆")</span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                            <button type="button" class="btn-reply" data-comment-id="@comment.CommentId">Reply</button>
+                            <form class="reply-form" data-parent-id="@comment.CommentId" style="display:none; margin-top:0.5em;">
+                                <textarea class="form-control mb-2 reply-content" placeholder="Write a reply..."></textarea>
+                                <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
+                            </form>
+                            <div class="replies">
+                                @if (comment.Replies != null && comment.Replies.Any())
+                                {
+                                    @foreach (var reply in comment.Replies)
+                                    {
+                                        <div class="comment-reply" data-id="@reply.CommentId">
+                                            <img src="@reply.AvatarUrl" class="comment-avatar" alt="@reply.Username" />
+                                            <div class="comment-body">
+                                                <div class="comment-top">
+                                                    <span class="comment-name">@reply.Username</span>
+                                                    <span class="comment-time">
+                                                        @(reply.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")
+                                                    </span>
+                                                </div>
+                                                <div class="comment-text">@reply.CommentText</div>
+                                                @if (reply.Rating.HasValue)
+                                                {
+                                                    <div class="comment-rating">
+                                                        <span class="rating-stars">
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                <span>@(i <= reply.Rating.Value ? "★" : "☆")</span>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="panel-text">No comments yet. Be the first to comment!</p>
+            }
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const commentForm = document.getElementById('comment-form');
+        const commentsList = document.getElementById('comments-list');
+        const recipeId = document.getElementById('recipeId')?.value;
+        const currentUserId = document.getElementById('userId')?.value;
+
+        // SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/commentHub')
+            .build();
+
+        connection.start().then(function () {
+            if (recipeId) {
+                connection.invoke('JoinRecipeGroup', parseInt(recipeId));
+            }
+        });
+
+        // Listen for new comments
+        connection.on('ReceiveComment', function (comment) {
+            const pId = comment.parentCommentId || comment.ParentCommentId;
+            const cId = comment.commentId || comment.CommentId;
+            const cUser = comment.username || comment.Username;
+            const cAvatar = comment.avatarUrl || comment.AvatarUrl;
+            const cText = comment.commentText || comment.CommentText;
+            const cDateRaw = comment.createdAt || comment.CreatedAt;
+            const cRating = comment.rating || comment.Rating;
+            const dateStr = new Date(cDateRaw).toLocaleString();
+
+            if (pId && pId !== 0 && pId !== "0") {
+                // Reply - Realtime disabled
+                return;
+            } else {
+                // Top-Level Comment
+                const div = document.createElement('div');
+                div.className = 'comment';
+                div.setAttribute('data-id', cId);
+
+                div.innerHTML = `
+                    <img src="${cAvatar}" class="comment-avatar" alt="${cUser}" />
+                    <div class="comment-body">
+                        <div class="comment-top">
+                            <span class="comment-name">${cUser}</span>
+                            <span class="comment-time">${dateStr}</span>
+                        </div>
+                        <div class="comment-text">${cText}</div>
+                        ${cRating ? `<div class="comment-rating"><span class="rating-stars">${'★'.repeat(cRating)}${'☆'.repeat(5 - cRating)}</span></div>` : ''}
+
+                        <button type="button" class="btn-reply" data-comment-id="${cId}">Reply</button>
+
+                        <form class="reply-form" data-parent-id="${cId}" style="display:none; margin-top:0.5em;">
+                            <textarea class="form-control mb-2 reply-content" placeholder="Write a reply..."></textarea>
+                            <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
+                        </form>
+
+                        <div class="replies"></div>
+                    </div>
+                `;
+
+                const noComments = document.querySelector('.panel-text');
+                if (noComments) noComments.remove();
+
+                commentsList.prepend(div);
+            }
+        });
+
+        // Main Comment Submit
+        if (commentForm) {
+            commentForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const content = document.getElementById('comment-content').value.trim();
+                const rating = document.getElementById('comment-rating').value;
+
+                if (!content) { alert('Please enter a comment.'); return; }
+                if (!currentUserId) { alert('Please login to comment.'); return; }
+
+                try {
+                    const response = await fetch('/Recipes/Comments?handler=Add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            recipeId: parseInt(recipeId),
+                            userId: parseInt(currentUserId),
+                            commentText: content,
+                            rating: rating ? parseInt(rating) : null,
+                            parentCommentId: null
+                        })
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+                    const comment = await response.json();
+
+                    document.getElementById('comment-content').value = '';
+                    document.getElementById('comment-rating').value = '';
+
+                    connection.invoke('SendComment', parseInt(recipeId), comment);
+                } catch (err) {
+                    console.error('Error:', err);
+                    alert('Failed to post comment.');
+                }
+            });
+        }
+
+        // Reply Button Click
+        commentsList.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('btn-reply')) {
+                const btn = e.target;
+                const commentId = btn.getAttribute('data-comment-id');
+                const commentBlock = btn.closest('.comment-body');
+                const form = commentBlock.querySelector(`.reply-form[data-parent-id="${commentId}"]`);
+
+                if (form) {
+                    const isHidden = (form.style.display === 'none' || form.style.display === '');
+                    form.style.display = isHidden ? 'block' : 'none';
+                    if (isHidden) form.querySelector('.reply-content').focus();
+                }
+            }
+        });
+
+        // Reply Form Submit
+        commentsList.addEventListener('submit', async function(e) {
+            if (e.target && e.target.classList.contains('reply-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const parentCommentId = form.getAttribute('data-parent-id');
+                const replyContent = form.querySelector('.reply-content').value.trim();
+
+                if (!replyContent) { alert('Please enter a reply.'); return; }
+
+                try {
+                    const response = await fetch('/Recipes/Comments?handler=Add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            recipeId: parseInt(recipeId),
+                            userId: parseInt(currentUserId),
+                            commentText: replyContent,
+                            rating: null,
+                            parentCommentId: parseInt(parentCommentId)
+                        })
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+                    const comment = await response.json();
+
+                    form.querySelector('.reply-content').value = '';
+                    form.style.display = 'none';
+
+                    connection.invoke('SendComment', parseInt(recipeId), comment);
+                    window.location.reload();
+
+                } catch (err) {
+                    console.error('Error:', err);
+                    alert('Failed to post reply.');
+                }
+            }
+        });
+    });
+</script>
+<style>
+    body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #F6F7F9;
+        margin: 0;
+        padding: 1rem;
+    }
+
+    #comment-section {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .comment-shell {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 22px;
+        box-shadow: 0 14px 40px rgba(15,23,42,0.10);
+        padding: 1.5rem 1.5rem 2rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    #comment-form {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4F46E5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+    .mb-2 {
+        margin-bottom: 0.75rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #EC4899);
+        border: none;
+        color: white;
+        padding: 0.7rem 1.8rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: inline-block;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+    /* Fixed Reply Button CSS */
+    .btn-reply {
+        background: none;
+        border: none;
+        color: #64748B; /* Slate-500 */
+        padding: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        margin-bottom: 0.25rem;
+        display: inline-block;
+        transition: color 0.2s;
+        font-family: inherit;
+    }
+
+        .btn-reply:hover {
+            color: #4F46E5; /* Indigo-600 */
+            text-decoration: underline;
+        }
+
+    .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-info {
+        background: #EEF2FF;
+        border: 1px solid #C7D2FE;
+        color: #4338CA;
+    }
+
+    .alert a {
+        color: #4F46E5;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .comments-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .mt-3 {
+        margin-top: 1.5rem;
+    }
+
+    .comment {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 1rem;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        transition: box-shadow 0.2s;
+    }
+
+        .comment:hover {
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #E2E8F0;
+        background: #F8FAFC;
+        flex-shrink: 0;
+    }
+
+    .comment-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .comment-top {
+        display: flex;
+        gap: 0.6rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+        margin-bottom: 0.4rem;
+    }
+
+    .comment-name {
+        font-weight: 700;
+        color: #0F172A;
+        font-size: 0.95rem;
+    }
+
+    .comment-time {
+        color: #64748B;
+        font-size: 0.82rem;
+    }
+
+    .comment-text {
+        color: #334155;
+        font-size: 0.94rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-rating {
+        margin-top: 0.5rem;
+    }
+
+    .rating-stars {
+        color: #FBBF24;
+        font-size: 1rem;
+        letter-spacing: 0.15em;
+    }
+
+    .replies {
+        margin-left: 2.5rem;
+        margin-top: 0.75rem;
+        padding-left: 1rem;
+        border-left: 2px solid #E2E8F0;
+    }
+
+    .comment-reply {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 12px;
+        background: #F8FAFC;
+    }
+
+        .comment-reply:last-child {
+            margin-bottom: 0;
+        }
+
+        .comment-reply .comment-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .comment-reply .comment-name {
+            font-size: 0.88rem;
+        }
+
+        .comment-reply .comment-text {
+            font-size: 0.88rem;
+        }
+
+        .comment-reply .comment-time {
+            font-size: 0.78rem;
+        }
+
+    .panel-text {
+        color: #64748B;
+        font-size: 0.95rem;
+        text-align: center;
+        padding: 2rem;
+        margin: 0;
+    }
+</style>
