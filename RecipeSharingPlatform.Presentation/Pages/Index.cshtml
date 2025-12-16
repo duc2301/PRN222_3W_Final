@@ -1,10 +1,21 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="px-4 py-5 my-5 text-center bg-light rounded-3">
+    <h1 class="display-5 fw-bold text-primary">Chào mừng đến với Bếp Nhà</h1>
+
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">
+            Nơi kết nối đam mê ẩm thực. Khám phá hàng ngàn công thức nấu ăn độc đáo,
+            chia sẻ bí quyết của riêng bạn và cùng nhau tạo nên những bữa ăn hạnh phúc.
+        </p>
+
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a asp-page="/Recipes/Index" class="btn btn-primary btn-lg px-4 gap-3">Khám phá ngay</a>
+            <a asp-page="/Recipes/Create" class="btn btn-outline-secondary btn-lg px-4">Chia sẻ công thức</a>
+        </div>
+    </div>
 </div>

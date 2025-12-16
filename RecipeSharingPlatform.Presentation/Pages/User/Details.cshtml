@@ -2,67 +2,70 @@
 @model RecipeSharingPlatform.Presentation.Pages.User.DetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết hồ sơ";
 }
 
-<h1>Details</h1>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="card-header bg-white border-bottom p-0">
+                    <div class="bg-primary" style="height: 100px;"></div>
+                </div>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.Username)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Username)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Email)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.Password)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Password)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.FullName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.FullName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.Bio)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Bio)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.ProfileImage)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.ProfileImage)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.CreatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.CreatedAt)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.User.UpdatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.UpdatedAt)
-        </dd>
+                <div class="card-body px-5 pb-5 position-relative">
+                    <div class="d-flex justify-content-between align-items-end" style="margin-top: -60px; margin-bottom: 20px;">
+                        <img src="@(string.IsNullOrEmpty(Model.User.ProfileImage) ? "https://via.placeholder.com/150" : Model.User.ProfileImage)"
+                             alt="Profile"
+                             class="rounded-circle border border-4 border-white shadow bg-white"
+                             style="width: 120px; height: 120px; object-fit: cover;">
 
-    </dl>
-</div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.User.UserId">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+                        <div class="d-flex gap-2 mb-3">
+                            <a asp-page="./Edit" asp-route-id="@Model.User.UserId" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
+                            <a asp-page="./Index" class="btn btn-outline-secondary">Quay lại danh sách</a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 border-end">
+                            <h3 class="fw-bold mb-0">@Model.User.FullName</h3>
+                            <p class="text-muted">@@@Model.User.Username</p>
+
+                            <div class="mt-4">
+                                <label class="text-muted small fw-bold text-uppercase">Email</label>
+                                <p class="mb-3"><i class="bi bi-envelope me-2"></i>@Model.User.Email</p>
+
+                                <label class="text-muted small fw-bold text-uppercase">Ngày tham gia</label>
+                                <p class="mb-3"><i class="bi bi-calendar3 me-2"></i>@(Model.User.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+
+                                <label class="text-muted small fw-bold text-uppercase">Cập nhật lần cuối</label>
+                                <p class="mb-0"><i class="bi bi-clock-history me-2"></i>@(Model.User.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8 ps-md-4">
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-primary">Giới thiệu (Bio)</h5>
+                                <div class="p-3 bg-light rounded text-secondary">
+                                    @(string.IsNullOrEmpty(Model.User.Bio) ? "Người dùng này chưa viết giới thiệu." : Model.User.Bio)
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-light border d-flex align-items-center" role="alert">
+                                        <i class="bi bi-shield-lock-fill text-muted me-2" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <strong>Bảo mật:</strong>
+                                            <div class="text-muted small">Password đã được mã hóa. Không hiển thị vì lý do an toàn.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,0 +1,70 @@
+﻿@page "{id:int}"
+@model RecipeSharingPlatform.Presentation.Pages.User.ProfileModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 overflow-hidden rounded-4">
+                <div class="bg-primary bg-opacity-10 position-relative" style="height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                </div>
+
+                <div class="card-body px-5 pb-5 text-center">
+                    <div class="position-relative d-inline-block mb-4" style="margin-top: -75px;">
+                        <img src="@(string.IsNullOrEmpty(Model.UserProfile.ProfileImage) ? "https://via.placeholder.com/150" : Model.UserProfile.ProfileImage)"
+                             class="rounded-circle border border-5 border-white shadow-sm bg-white object-fit-cover"
+                             width="150" height="150"
+                             alt="@Model.UserProfile.Username">
+                    </div>
+
+                    <h2 class="fw-bold mb-1">@Model.UserProfile.FullName</h2>
+                    <p class="text-muted fs-5 mb-4">@@@Model.UserProfile.Username</p>
+
+               
+
+                    <div class="row g-4 text-start justify-content-center">
+                        <div class="col-md-10">
+                            <div class="bg-light rounded-3 p-4">
+                                <h5 class="fw-bold text-dark border-bottom pb-3 mb-3">
+                                    <i class="bi bi-person-lines-fill me-2"></i>Thông tin chi tiết
+                                </h5>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted fw-semibold">Email</div>
+                                    <div class="col-sm-8 text-break">@Model.UserProfile.Email</div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted fw-semibold">Ngày tham gia</div>
+                                    <div class="col-sm-8">@(Model.UserProfile.CreatedAt?.ToString("dd 'tháng' MM, yyyy") ?? "N/A")</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-4 text-muted fw-semibold">Giới thiệu (Bio)</div>
+                                    <div class="col-sm-8">
+                                        @if (!string.IsNullOrEmpty(Model.UserProfile.Bio))
+                                        {
+                                            <span class="text-dark">@Model.UserProfile.Bio</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fst-italic text-muted opacity-75">Chưa cập nhật giới thiệu bản thân.</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+</style>
