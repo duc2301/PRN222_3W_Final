@@ -1,0 +1,674 @@
+@page
+@model RecipeSharingPlatform.Presentation.Pages.Admin.DashboardModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+}
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .dashboard-header {
+        background: var(--primary-gradient);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-card .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card .stat-icon.users { background: var(--primary-gradient); }
+    .stat-card .stat-icon.recipes { background: var(--success-gradient); }
+    .stat-card .stat-icon.comments { background: var(--warning-gradient); }
+    .stat-card .stat-icon.likes { background: var(--info-gradient); }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .stat-card .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .stat-card .stat-growth {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .stat-growth.positive { color: #28a745; }
+    .stat-growth.negative { color: #dc3545; }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        height: 100%;
+    }
+
+    .chart-card .chart-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chart-card .chart-title i {
+        color: #667eea;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    .table-card .table-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-card .table-title i {
+        color: #667eea;
+    }
+
+    .recent-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .recent-item:last-child {
+        border-bottom: none;
+    }
+
+    .recent-item img {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .recent-item .item-info {
+        flex: 1;
+    }
+
+    .recent-item .item-title {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .recent-item .item-meta {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .recent-item .item-badge {
+        font-size: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .rating-stars {
+        color: #ffc107;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1">📊 Admin Dashboard</h2>
+                <p class="mb-0 opacity-75">Tổng quan hệ thống Recipe Sharing Platform</p>
+            </div>
+            <div class="text-end">
+                <small class="opacity-75">Cập nhật lúc: @DateTime.Now.ToString("HH:mm dd/MM/yyyy")</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value">@Model.Stats.TotalUsers.ToString("N0")</div>
+                        <div class="stat-label">Người dùng</div>
+                        <div class="stat-growth @(Model.Stats.UserGrowthPercent >= 0 ? "positive" : "negative")">
+                            <i class="fas fa-arrow-@(Model.Stats.UserGrowthPercent >= 0 ? "up" : "down")"></i>
+                            @Math.Abs(Model.Stats.UserGrowthPercent)% so với tháng trước
+                        </div>
+                    </div>
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value">@Model.Stats.TotalRecipes.ToString("N0")</div>
+                        <div class="stat-label">Công thức</div>
+                        <div class="stat-growth @(Model.Stats.RecipeGrowthPercent >= 0 ? "positive" : "negative")">
+                            <i class="fas fa-arrow-@(Model.Stats.RecipeGrowthPercent >= 0 ? "up" : "down")"></i>
+                            @Math.Abs(Model.Stats.RecipeGrowthPercent)% so với tháng trước
+                        </div>
+                    </div>
+                    <div class="stat-icon recipes">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value">@Model.Stats.TotalComments.ToString("N0")</div>
+                        <div class="stat-label">Bình luận</div>
+                        <div class="stat-growth @(Model.Stats.CommentGrowthPercent >= 0 ? "positive" : "negative")">
+                            <i class="fas fa-arrow-@(Model.Stats.CommentGrowthPercent >= 0 ? "up" : "down")"></i>
+                            @Math.Abs(Model.Stats.CommentGrowthPercent)% so với tháng trước
+                        </div>
+                    </div>
+                    <div class="stat-icon comments">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value">@Model.Stats.TotalLikes.ToString("N0")</div>
+                        <div class="stat-label">Lượt thích</div>
+                        <div class="stat-growth @(Model.Stats.LikeGrowthPercent >= 0 ? "positive" : "negative")">
+                            <i class="fas fa-arrow-@(Model.Stats.LikeGrowthPercent >= 0 ? "up" : "down")"></i>
+                            @Math.Abs(Model.Stats.LikeGrowthPercent)% so với tháng trước
+                        </div>
+                    </div>
+                    <div class="stat-icon likes">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extra Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                <div class="stat-value">@Model.Stats.TotalViews.ToString("N0")</div>
+                <div class="stat-label">Tổng lượt xem</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                <div class="stat-value">@Model.Stats.TotalCategories</div>
+                <div class="stat-label">Danh mục</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="fas fa-globe fa-2x text-info mb-2"></i>
+                <div class="stat-value">@Model.Stats.PublicRecipes / @Model.Stats.PrivateRecipes</div>
+                <div class="stat-label">Public / Private</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row g-4 mb-4">
+        <!-- Recipes by Category - Doughnut -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-pie"></i> Công thức theo danh mục
+                </div>
+                <canvas id="categoryChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Difficulty Distribution - Pie -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-signal"></i> Phân bố độ khó
+                </div>
+                <canvas id="difficultyChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Public vs Private - Donut -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-lock-open"></i> Public vs Private
+                </div>
+                <canvas id="visibilityChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-4 mb-4">
+        <!-- New Users Monthly - Line Chart -->
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i> Người dùng mới theo tháng
+                </div>
+                <canvas id="usersMonthlyChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- New Recipes Monthly - Line Chart -->
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-area"></i> Công thức mới theo tháng
+                </div>
+                <canvas id="recipesMonthlyChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row g-4 mb-4">
+        <!-- Top Viewed Recipes - Horizontal Bar -->
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-fire"></i> Top 10 công thức xem nhiều nhất
+                </div>
+                <canvas id="topViewedChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Liked Recipes - Horizontal Bar -->
+        <div class="col-xl-6">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-heart"></i> Top 10 công thức được thích nhiều nhất
+                </div>
+                <canvas id="topLikedChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="row g-4 mb-4">
+        <!-- Recent Recipes -->
+        <div class="col-xl-4">
+            <div class="table-card">
+                <div class="table-title">
+                    <i class="fas fa-utensils"></i> Công thức mới nhất
+                </div>
+                @foreach (var recipe in Model.Stats.RecentRecipes)
+                {
+                    <div class="recent-item">
+                        <img src="@(recipe.ImageUrl ?? "https://via.placeholder.com/45x45?text=🍽️")" 
+                             alt="@recipe.Title"
+                             onerror="this.src='https://via.placeholder.com/45x45?text=🍽️'">
+                        <div class="item-info">
+                            <div class="item-title">@recipe.Title</div>
+                            <div class="item-meta">
+                                <i class="fas fa-user"></i> @recipe.AuthorName
+                            </div>
+                        </div>
+                        <span class="badge bg-primary item-badge">@recipe.CategoryName</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Comments -->
+        <div class="col-xl-4">
+            <div class="table-card">
+                <div class="table-title">
+                    <i class="fas fa-comments"></i> Bình luận mới nhất
+                </div>
+                @foreach (var comment in Model.Stats.RecentComments)
+                {
+                    <div class="recent-item">
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 45px; height: 45px;">
+                            <i class="fas fa-comment text-primary"></i>
+                        </div>
+                        <div class="item-info">
+                            <div class="item-title">@comment.Username</div>
+                            <div class="item-meta text-truncate" style="max-width: 200px;">
+                                @comment.CommentText
+                            </div>
+                        </div>
+                        @if (comment.Rating.HasValue)
+                        {
+                            <span class="rating-stars">
+                                @for (int i = 0; i < comment.Rating; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="col-xl-4">
+            <div class="table-card">
+                <div class="table-title">
+                    <i class="fas fa-user-plus"></i> Người dùng mới
+                </div>
+                @foreach (var user in Model.Stats.RecentUsers)
+                {
+                    <div class="recent-item">
+                        <img src="@(user.ProfileImage ?? $"https://ui-avatars.com/api/?name={user.Username}&background=random")" 
+                             alt="@user.Username"
+                             class="user-avatar"
+                             onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                        <div class="item-info">
+                            <div class="item-title">@(user.FullName ?? user.Username)</div>
+                            <div class="item-meta">@user.Email</div>
+                        </div>
+                        <small class="text-muted">@user.CreatedAt.ToString("dd/MM")</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Active Users -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="table-card">
+                <div class="table-title">
+                    <i class="fas fa-trophy"></i> Top người dùng tích cực
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Người dùng</th>
+                                <th class="text-center">Công thức</th>
+                                <th class="text-center">Lượt thích nhận được</th>
+                                <th class="text-center">Followers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int rank = 1; }
+                            @foreach (var user in Model.Stats.TopActiveUsers)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (rank == 1) { <span class="badge bg-warning">🥇</span> }
+                                        else if (rank == 2) { <span class="badge bg-secondary">🥈</span> }
+                                        else if (rank == 3) { <span class="badge bg-danger">🥉</span> }
+                                        else { <span class="text-muted">@rank</span> }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@(user.ProfileImage ?? $"https://ui-avatars.com/api/?name={user.Username}&background=random")" 
+                                                 alt="@user.Username"
+                                                 class="user-avatar"
+                                                 style="width: 35px; height: 35px;"
+                                                 onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                                            <div>
+                                                <strong>@(user.FullName ?? user.Username)</strong>
+                                                <br><small class="text-muted">@@@user.Username</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center"><span class="badge bg-primary">@user.RecipeCount</span></td>
+                                    <td class="text-center"><span class="badge bg-danger">@user.TotalLikes ❤️</span></td>
+                                    <td class="text-center"><span class="badge bg-info">@user.FollowerCount</span></td>
+                                </tr>
+                                rank++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data from server
+        const categoryData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.RecipesByCategory));
+        const difficultyData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.RecipesByDifficulty));
+        const usersMonthlyData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.NewUsersMonthly));
+        const recipesMonthlyData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.NewRecipesMonthly));
+        const topViewedData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.TopViewedRecipes));
+        const topLikedData = @Html.Raw(JsonSerializer.Serialize(Model.Stats.TopLikedRecipes));
+        const publicRecipes = @Model.Stats.PublicRecipes;
+        const privateRecipes = @Model.Stats.PrivateRecipes;
+
+        // Chart.js default settings
+        Chart.defaults.font.family = "'Poppins', sans-serif";
+
+        // 1. Category Doughnut Chart
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoryData.map(c => c.categoryName),
+                datasets: [{
+                    data: categoryData.map(c => c.recipeCount),
+                    backgroundColor: categoryData.map(c => c.color),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15 } }
+                }
+            }
+        });
+
+        // 2. Difficulty Pie Chart
+        new Chart(document.getElementById('difficultyChart'), {
+            type: 'pie',
+            data: {
+                labels: difficultyData.map(d => d.difficulty),
+                datasets: [{
+                    data: difficultyData.map(d => d.count),
+                    backgroundColor: difficultyData.map(d => d.color),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15 } }
+                }
+            }
+        });
+
+        // 3. Visibility Donut Chart
+        new Chart(document.getElementById('visibilityChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Public', 'Private'],
+                datasets: [{
+                    data: [publicRecipes, privateRecipes],
+                    backgroundColor: ['#36A2EB', '#FF6384'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15 } }
+                }
+            }
+        });
+
+        // 4. Users Monthly Line Chart
+        new Chart(document.getElementById('usersMonthlyChart'), {
+            type: 'line',
+            data: {
+                labels: usersMonthlyData.map(u => u.monthLabel),
+                datasets: [{
+                    label: 'Người dùng mới',
+                    data: usersMonthlyData.map(u => u.count),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#667eea',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // 5. Recipes Monthly Area Chart
+        new Chart(document.getElementById('recipesMonthlyChart'), {
+            type: 'line',
+            data: {
+                labels: recipesMonthlyData.map(r => r.monthLabel),
+                datasets: [{
+                    label: 'Công thức mới',
+                    data: recipesMonthlyData.map(r => r.count),
+                    borderColor: '#11998e',
+                    backgroundColor: 'rgba(17, 153, 142, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#11998e',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // 6. Top Viewed Horizontal Bar Chart
+        new Chart(document.getElementById('topViewedChart'), {
+            type: 'bar',
+            data: {
+                labels: topViewedData.map(r => r.title.length > 20 ? r.title.substring(0, 20) + '...' : r.title),
+                datasets: [{
+                    label: 'Lượt xem',
+                    data: topViewedData.map(r => r.viewCount),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+
+        // 7. Top Liked Horizontal Bar Chart
+        new Chart(document.getElementById('topLikedChart'), {
+            type: 'bar',
+            data: {
+                labels: topLikedData.map(r => r.title.length > 20 ? r.title.substring(0, 20) + '...' : r.title),
+                datasets: [{
+                    label: 'Lượt thích',
+                    data: topLikedData.map(r => r.likeCount),
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    </script>
+}
+
