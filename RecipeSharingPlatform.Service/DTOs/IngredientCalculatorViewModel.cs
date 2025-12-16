@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RecipeSharingPlatform.Presentation.Models
+namespace RecipeSharingPlatform.Service.DTOs
 {
     public class IngredientLineViewModel
     {
