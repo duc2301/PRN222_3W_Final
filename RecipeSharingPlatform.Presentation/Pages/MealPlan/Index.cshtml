@@ -1,0 +1,783 @@
+@page
+@model RecipeSharingPlatform.Presentation.Pages.MealPlan.IndexModel
+@{
+    ViewData["Title"] = "Kế Hoạch Bữa Ăn";
+}
+
+<style>
+    .meal-plan-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .week-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .week-nav .btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .week-nav .btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: scale(1.1);
+    }
+
+    .week-label {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .day-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .day-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .day-card.today {
+        border-left: 4px solid #667eea;
+    }
+
+    .day-header {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s;
+    }
+
+    .day-header:hover {
+        background: #e9ecef;
+    }
+
+    .day-header .day-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .day-header .day-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .day-header .day-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .day-header .today-badge {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .day-header .collapse-icon {
+        transition: transform 0.3s;
+    }
+
+    .day-header.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+    }
+
+    .day-content {
+        padding: 1rem 1.5rem;
+    }
+
+    .meal-slot {
+        border-bottom: 1px solid #eee;
+        padding: 1rem 0;
+    }
+
+    .meal-slot:last-child {
+        border-bottom: none;
+    }
+
+    .meal-slot-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .meal-type-icon {
+        font-size: 1.25rem;
+    }
+
+    .meal-type-name {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .meal-recipes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .recipe-card-mini {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 0.5rem 1rem 0.5rem 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .recipe-card-mini:hover {
+        background: #e9ecef;
+    }
+
+    .recipe-card-mini img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .recipe-card-mini .recipe-info {
+        flex: 1;
+    }
+
+    .recipe-card-mini .recipe-title {
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    .recipe-card-mini .recipe-meta {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    .recipe-card-mini .btn-remove {
+        color: #dc3545;
+        background: none;
+        border: none;
+        padding: 0.25rem;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.3s;
+    }
+
+    .recipe-card-mini .btn-remove:hover {
+        opacity: 1;
+    }
+
+    .btn-add-meal {
+        border: 2px dashed #dee2e6;
+        background: transparent;
+        color: #6c757d;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .btn-add-meal:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .notes-section {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #dee2e6;
+    }
+
+    .notes-input {
+        width: 100%;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        resize: none;
+        transition: border-color 0.3s;
+    }
+
+    .notes-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .notes-display {
+        color: #6c757d;
+        font-size: 0.85rem;
+        font-style: italic;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.3s;
+    }
+
+    .notes-display:hover {
+        background: #f8f9fa;
+    }
+
+    .btn-generate-list {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-generate-list:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
+        color: white;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 1rem;
+    }
+
+    .modal-body {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .recipe-search-input {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #dee2e6;
+        transition: border-color 0.3s;
+    }
+
+    .recipe-search-input:focus {
+        border-color: #667eea;
+        box-shadow: none;
+    }
+
+    .recipe-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .recipe-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .recipe-item:hover {
+        background: #f8f9fa;
+    }
+
+    .recipe-item.selected {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .recipe-item img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .recipe-item .recipe-info h6 {
+        margin-bottom: 0.25rem;
+    }
+
+    .servings-input {
+        width: 80px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="meal-plan-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1">📅 Kế Hoạch Bữa Ăn</h2>
+                <p class="mb-0 opacity-75">Lên kế hoạch cho tuần của bạn</p>
+            </div>
+            <div class="week-nav">
+                <a href="?WeekStart=@Model.WeeklyMealPlan.WeekStartDate.AddDays(-7).ToString("yyyy-MM-dd")" class="btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <span class="week-label">@Model.WeeklyMealPlan.WeekLabel</span>
+                <a href="?WeekStart=@Model.WeeklyMealPlan.WeekStartDate.AddDays(7).ToString("yyyy-MM-dd")" class="btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+            <button class="btn btn-generate-list" onclick="generateShoppingList()">
+                <i class="fas fa-shopping-cart me-2"></i>Tạo Danh Sách Mua Sắm
+            </button>
+        </div>
+    </div>
+
+    <!-- Days List -->
+    <div class="days-container">
+        @if (Model.WeeklyMealPlan.Days.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-calendar-alt"></i>
+                <h4>Chưa có kế hoạch</h4>
+                <p>Bắt đầu thêm món ăn vào kế hoạch của bạn!</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var day in Model.WeeklyMealPlan.Days)
+            {
+                <div class="day-card @(day.IsToday ? "today" : "")" data-date="@day.Date.ToString("yyyy-MM-dd")">
+                    <div class="day-header @(day.IsToday ? "" : "collapsed")" 
+                         data-bs-toggle="collapse" 
+                         data-bs-target="#day-@day.Date.ToString("yyyyMMdd")">
+                        <div class="day-info">
+                            <i class="fas fa-chevron-down collapse-icon"></i>
+                            <span class="day-name">@day.DayOfWeek</span>
+                            <span class="day-date">@day.FormattedDate</span>
+                            @if (day.IsToday)
+                            {
+                                <span class="today-badge">Hôm nay</span>
+                            }
+                        </div>
+                        <div class="meals-summary">
+                            @if (day.HasAnyMeals)
+                            {
+                                <span class="badge bg-success">@day.MealSlots.Sum(m => m.Recipes.Count) món</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="collapse @(day.IsToday ? "show" : "")" id="day-@day.Date.ToString("yyyyMMdd")">
+                        <div class="day-content">
+                            @foreach (var slot in day.MealSlots)
+                            {
+                                <div class="meal-slot" data-meal-type="@slot.MealType" data-meal-plan-id="@slot.MealPlanId">
+                                    <div class="meal-slot-header">
+                                        <span class="meal-type-icon">@slot.MealTypeIcon</span>
+                                        <span class="meal-type-name">@slot.MealType</span>
+                                    </div>
+                                    <div class="meal-recipes">
+                                        @if (slot.Recipes.Count > 0)
+                                        {
+                                            @foreach (var recipe in slot.Recipes)
+                                            {
+                                                <div class="recipe-card-mini" data-mpr-id="@recipe.MealPlanRecipeId">
+                                                    <img src="@(recipe.MainImageUrl ?? "/images/no-image.jpg")" 
+                                                         alt="@recipe.RecipeTitle"
+                                                         onerror="this.src='https://via.placeholder.com/50x50?text=🍽️'">
+                                                    <div class="recipe-info">
+                                                        <a href="/Recipes/Details/@recipe.RecipeId" class="recipe-title text-decoration-none">
+                                                            @recipe.RecipeTitle
+                                                        </a>
+                                                        <div class="recipe-meta">
+                                                            @if (!string.IsNullOrEmpty(recipe.CategoryName))
+                                                            {
+                                                                <span>@recipe.CategoryName</span>
+                                                                <span>•</span>
+                                                            }
+                                                            <span>@recipe.Servings người</span>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn-remove" onclick="removeRecipe(@recipe.MealPlanRecipeId)" title="Xóa món này">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <button class="btn-add-meal" 
+                                                onclick="openAddModal('@day.Date.ToString("yyyy-MM-dd")', '@slot.MealType')">
+                                            <i class="fas fa-plus me-1"></i> Thêm món
+                                        </button>
+                                    </div>
+
+                                    @if (slot.MealPlanId.HasValue)
+                                    {
+                                        <div class="notes-section">
+                                            <div class="notes-display" 
+                                                 onclick="enableNotesEdit(this, @slot.MealPlanId)"
+                                                 data-meal-plan-id="@slot.MealPlanId">
+                                                <i class="fas fa-sticky-note me-1"></i>
+                                                @(string.IsNullOrEmpty(slot.Notes) ? "Nhấn để thêm ghi chú..." : slot.Notes)
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Add Recipe Modal -->
+<div class="modal fade" id="addRecipeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-utensils me-2 text-primary"></i>Thêm Món Ăn
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="selected-slot mb-3 p-3 bg-light rounded-3">
+                    <strong id="selectedDayLabel"></strong> - <span id="selectedMealLabel"></span>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control recipe-search-input" 
+                           id="recipeSearchInput" 
+                           placeholder="🔍 Tìm kiếm món ăn..."
+                           oninput="searchRecipes(this.value)">
+                </div>
+
+                <div class="recipe-list" id="recipeList">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search mb-2" style="font-size: 2rem;"></i>
+                        <p>Nhập tên món để tìm kiếm...</p>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-3 border-top" id="servingsSection" style="display: none;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <label class="form-label mb-0">Số người ăn:</label>
+                        <input type="number" class="form-control servings-input" id="servingsInput" value="4" min="1" max="100">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAddRecipe()" id="btnConfirmAdd" disabled>
+                    <i class="fas fa-plus me-1"></i> Thêm Món
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let selectedDate = '';
+    let selectedMealType = '';
+    let selectedRecipeId = null;
+    let searchTimeout = null;
+    const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    // Mở modal thêm món
+    function openAddModal(date, mealType) {
+        selectedDate = date;
+        selectedMealType = mealType;
+        selectedRecipeId = null;
+
+        // Format ngày hiển thị
+        const dateObj = new Date(date);
+        const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+        document.getElementById('selectedDayLabel').textContent = 
+            `${dayNames[dateObj.getDay()]}, ${dateObj.toLocaleDateString('vi-VN')}`;
+        document.getElementById('selectedMealLabel').textContent = `Bữa ${mealType}`;
+
+        // Reset form
+        document.getElementById('recipeSearchInput').value = '';
+        document.getElementById('recipeList').innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-search mb-2" style="font-size: 2rem;"></i>
+                <p>Nhập tên món để tìm kiếm...</p>
+            </div>
+        `;
+        document.getElementById('servingsSection').style.display = 'none';
+        document.getElementById('btnConfirmAdd').disabled = true;
+
+        // Load recipes mặc định
+        searchRecipes('');
+
+        new bootstrap.Modal(document.getElementById('addRecipeModal')).show();
+    }
+
+    // Tìm kiếm recipes
+    function searchRecipes(query) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/MealPlan?handler=SearchRecipes&search=${encodeURIComponent(query)}`);
+                const result = await response.json();
+                
+                if (result.ok && result.data) {
+                    renderRecipeList(result.data);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }, 300);
+    }
+
+    // Render danh sách recipes
+    function renderRecipeList(recipes) {
+        const container = document.getElementById('recipeList');
+        
+        if (recipes.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-search-minus mb-2" style="font-size: 2rem;"></i>
+                    <p>Không tìm thấy món ăn phù hợp</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = recipes.map(r => `
+            <div class="recipe-item ${selectedRecipeId === r.recipeId ? 'selected' : ''}" 
+                 onclick="selectRecipe(${r.recipeId}, this)">
+                <img src="${r.mainImageUrl || 'https://via.placeholder.com/60x60?text=🍽️'}" 
+                     alt="${r.title}"
+                     onerror="this.src='https://via.placeholder.com/60x60?text=🍽️'">
+                <div class="recipe-info">
+                    <h6 class="mb-1">${r.title}</h6>
+                    <small class="text-muted">
+                        ${r.categoryName ? r.categoryName + ' • ' : ''}
+                        ${r.difficulty || 'Chưa phân loại'} • 
+                        ${r.servings || 4} người
+                    </small>
+                </div>
+                ${selectedRecipeId === r.recipeId ? '<i class="fas fa-check-circle text-primary"></i>' : ''}
+            </div>
+        `).join('');
+    }
+
+    // Chọn recipe
+    function selectRecipe(recipeId, element) {
+        selectedRecipeId = recipeId;
+        
+        // Update UI
+        document.querySelectorAll('.recipe-item').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        
+        document.getElementById('servingsSection').style.display = 'block';
+        document.getElementById('btnConfirmAdd').disabled = false;
+    }
+
+    // Xác nhận thêm recipe
+    async function confirmAddRecipe() {
+        if (!selectedRecipeId) return;
+
+        const servings = parseInt(document.getElementById('servingsInput').value) || 4;
+
+        try {
+            const response = await fetch('/MealPlan?handler=AddRecipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiForgeryToken || ''
+                },
+                body: JSON.stringify({
+                    date: selectedDate,
+                    mealType: selectedMealType,
+                    recipeId: selectedRecipeId,
+                    servings: servings
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.ok) {
+                showToast(result.message, true);
+                bootstrap.Modal.getInstance(document.getElementById('addRecipeModal')).hide();
+                // Reload page để hiển thị món mới
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', false);
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra: ' + error.message, false);
+        }
+    }
+
+    // Xóa recipe khỏi meal plan
+    async function removeRecipe(mealPlanRecipeId) {
+        if (!confirm('Bạn có chắc muốn xóa món này khỏi kế hoạch?')) return;
+
+        try {
+            const response = await fetch('/MealPlan?handler=RemoveRecipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiForgeryToken || ''
+                },
+                body: JSON.stringify({ mealPlanRecipeId })
+            });
+
+            const result = await response.json();
+            
+            if (result.ok) {
+                showToast(result.message, true);
+                // Xóa element khỏi DOM
+                document.querySelector(`[data-mpr-id="${mealPlanRecipeId}"]`)?.remove();
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', false);
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra: ' + error.message, false);
+        }
+    }
+
+    // Inline edit notes
+    function enableNotesEdit(element, mealPlanId) {
+        const currentNotes = element.textContent.trim();
+        const isPlaceholder = currentNotes === 'Nhấn để thêm ghi chú...';
+        
+        element.outerHTML = `
+            <textarea class="notes-input" 
+                      data-meal-plan-id="${mealPlanId}"
+                      onblur="saveNotes(this, ${mealPlanId})"
+                      placeholder="Nhập ghi chú...">${isPlaceholder ? '' : currentNotes}</textarea>
+        `;
+        
+        const textarea = document.querySelector(`textarea[data-meal-plan-id="${mealPlanId}"]`);
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+
+    // Lưu notes
+    async function saveNotes(textarea, mealPlanId) {
+        const notes = textarea.value.trim();
+        
+        try {
+            const response = await fetch('/MealPlan?handler=UpdateNotes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiForgeryToken || ''
+                },
+                body: JSON.stringify({ mealPlanId, notes })
+            });
+
+            const result = await response.json();
+            
+            // Chuyển về display mode
+            textarea.outerHTML = `
+                <div class="notes-display" 
+                     onclick="enableNotesEdit(this, ${mealPlanId})"
+                     data-meal-plan-id="${mealPlanId}">
+                    <i class="fas fa-sticky-note me-1"></i>
+                    ${notes || 'Nhấn để thêm ghi chú...'}
+                </div>
+            `;
+
+            if (!result.ok) {
+                showToast(result.message || 'Không thể lưu ghi chú', false);
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra: ' + error.message, false);
+        }
+    }
+
+    // Tạo shopping list
+    async function generateShoppingList() {
+        if (!confirm('Thêm tất cả nguyên liệu trong tuần vào Shopping List?')) return;
+
+        try {
+            const weekStart = '@Model.WeeklyMealPlan.WeekStartDate.ToString("yyyy-MM-dd")';
+            
+            const response = await fetch('/MealPlan?handler=GenerateShoppingList', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiForgeryToken || ''
+                },
+                body: JSON.stringify({ weekStart })
+            });
+
+            const result = await response.json();
+            
+            if (result.ok) {
+                showToast(result.message, true);
+                if (result.redirectUrl) {
+                    setTimeout(() => window.location.href = result.redirectUrl, 1000);
+                }
+            } else {
+                showToast(result.message || 'Có lỗi xảy ra', false);
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra: ' + error.message, false);
+        }
+    }
+
+    // Toast notification
+    function showToast(message, isSuccess = true) {
+        const alert = document.createElement('div');
+        alert.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3500);
+    }
+
+    // Collapse toggle icon animation
+    document.querySelectorAll('.day-header').forEach(header => {
+        const collapseId = header.getAttribute('data-bs-target');
+        const collapse = document.querySelector(collapseId);
+        
+        if (collapse) {
+            collapse.addEventListener('show.bs.collapse', () => header.classList.remove('collapsed'));
+            collapse.addEventListener('hide.bs.collapse', () => header.classList.add('collapsed'));
+        }
+    });
+</script>
+}
+
