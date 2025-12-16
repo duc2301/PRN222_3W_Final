@@ -3,6 +3,7 @@ namespace RecipeSharingPlatform.Service.DTOs.ResponseDTOs
     public class CommentDto
     {
         public int CommentId { get; set; }
+        public int? ParentCommentId { get; set; }
         public int RecipeId { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
