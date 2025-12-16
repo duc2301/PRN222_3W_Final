@@ -2,77 +2,71 @@
 @model RecipeSharingPlatform.Presentation.Pages.User.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý Người dùng";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].Username)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].Bio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].ProfileImage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User[0].UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.User) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Username)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Bio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProfileImage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.UserId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.UserId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.UserId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="container-fluid py-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-primary fw-bold">Danh sách thành viên</h4>
+            <a asp-page="Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Tạo mới
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Thành viên</th>
+                            <th>Email</th>
+                            <th>Giới thiệu (Bio)</th>
+                            <th>Ngày tham gia</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.User)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@(string.IsNullOrEmpty(item.ProfileImage) ? "https://via.placeholder.com/40" : item.ProfileImage)"
+                                             class="rounded-circle me-3 object-fit-cover"
+                                             width="40" height="40" alt="Avatar">
+                                        <div>
+                                            <div class="fw-bold text-dark">@item.FullName</div>
+                                            <div class="text-muted small">@@@item.Username</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@item.Email</td>
+                                <td style="max-width: 200px;" class="text-truncate">
+                                    @item.Bio
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        @(item.CreatedAt.HasValue? item.CreatedAt.Value.ToString("dd/MM/yyyy") : "")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a asp-page="./Details" asp-route-id="@item.UserId" class="btn btn-sm btn-light text-primary" title="Xem">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-page="./Edit" asp-route-id="@item.UserId" class="btn btn-sm btn-light text-warning" title="Sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-page="./Delete" asp-route-id="@item.UserId" class="btn btn-sm btn-light text-danger" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
