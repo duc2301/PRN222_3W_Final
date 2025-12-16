@@ -14,6 +14,7 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork.Interface
         ICategoryRepository CategoryRepository { get; }
         ILikeRepository LikeRepository { get; }
         ISavedRecipeRepository SavedRecipeRepository { get; }
+        IMealPlanRepository MealPlanRepository { get; }
         Task<int> SaveChangesAsync();
     }
 }

@@ -13,6 +13,7 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork
         public ICategoryRepository CategoryRepository { get; }
         public ILikeRepository _likeRepository;
         public ISavedRecipeRepository _savedRecipeRepository;
+        private IMealPlanRepository _mealPlanRepository;
 
         public UnitOfWork(RecipeSharingDbContext context, IRecipeRepository recipeRepository,
         ICategoryRepository categoryRepository)
@@ -26,6 +27,8 @@ namespace RecipeSharingPlatform.Repository.UnitOfWork
         public IUserRepository UserRepository => _userRepository ??  new UserRepository(_context);
         public ILikeRepository LikeRepository => _likeRepository ??= new LikeRepository(_context);
         public ISavedRecipeRepository SavedRecipeRepository => _savedRecipeRepository ??= new SavedRecipeRepository(_context);
+        public IMealPlanRepository MealPlanRepository => _mealPlanRepository ??= new MealPlanRepository(_context);
+        
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

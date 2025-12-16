@@ -54,6 +54,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ILikeRepository, LikeRepository>();
 builder.Services.AddScoped<ISavedRecipeRepository, SavedRecipeRepository>();
+builder.Services.AddScoped<IMealPlanRepository, MealPlanRepository>();
 
 // Services
 builder.Services.AddScoped<IRecipeService, RecipeService>();
@@ -62,10 +63,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<ISavedRecipeService, SavedRecipeService>();
+builder.Services.AddScoped<IMealPlanService, MealPlanService>();
 
 
 builder.Services.AddSignalR();
