@@ -1,4 +1,4 @@
-using RecipeSharingPlatform.Repository.Models;
+﻿using RecipeSharingPlatform.Repository.Models;
 using RecipeSharingPlatform.Repository.Repositories.Interfaces;
 using RecipeSharingPlatform.Service.DTOs.RequestDTOs;
 using RecipeSharingPlatform.Service.DTOs.ResponseDTOs;
@@ -60,12 +60,15 @@ public class CommentService : ICommentService
             CommentId = comment.CommentId,
             RecipeId = comment.RecipeId,
             UserId = comment.UserId,
-            Username = comment.User?.Username ?? "",
+            Username = comment.User?.Username ?? "Unknown",
             AvatarUrl = comment.User?.ProfileImage ?? "",
             CommentText = comment.CommentText,
             Rating = comment.Rating,
             CreatedAt = comment.CreatedAt,
-            Replies = comment.InverseParentComment?.Select(MapToDto).ToList() ?? new()
+            ParentCommentId = comment.ParentCommentId,
+            Replies = comment.InverseParentComment?.Select(MapToDto).ToList() ?? new(),
+            LikesCount = 0,
+            IsLiked = false
         };
     }
 }

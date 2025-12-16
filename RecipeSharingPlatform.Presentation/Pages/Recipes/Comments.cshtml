@@ -17,7 +17,241 @@
 <html>
 <head>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #EC4899;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --bg-light: #F9FAFB;
+            --border-color: #E5E7EB;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        /* --- Input Area --- */
+        .comment-input-area {
+            background: #fff;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .custom-textarea {
+            background-color: var(--bg-light);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            resize: none;
+        }
+
+            .custom-textarea:focus {
+                background-color: #fff;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            }
+
+        /* --- Comments List --- */
+        .comment-thread {
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Thread Connector Line */
+        .replies-container {
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            margin-left: 1.25rem; /* Align line under avatar center */
+            border-left: 2px solid #F3F4F6;
+        }
+
+        .comment-reply {
+            margin-top: 1rem;
+            position: relative;
+            padding-left: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+            /* Connector curve for replies */
+            .comment-reply::before {
+                content: '';
+                position: absolute;
+                top: 18px;
+                left: -2px;
+                width: 15px;
+                height: 2px;
+                background-color: #F3F4F6;
+            }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #111827;
+            margin-right: 0.5rem;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .comment-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #374151;
+            margin-top: 0.25rem;
+            white-space: pre-wrap;
+        }
+
+        .comment-footer {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        /* --- Actions Buttons --- */
+        .btn-action {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+            .btn-action:hover {
+                color: var(--primary-color);
+            }
+
+            .btn-action.text-danger:hover {
+                color: #DC2626;
+            }
+
+        /* Like Button States */
+        .btn-like {
+            transition: transform 0.1s;
+        }
+
+            .btn-like:active {
+                transform: scale(0.9);
+            }
+
+            .btn-like.liked {
+                color: var(--secondary-color);
+            }
+
+                .btn-like.liked i {
+                    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+        /* Animations */
+        @@keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes highlight {
+            0% {
+                background-color: #EEF2FF;
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .highlight-new {
+            animation: highlight 2s ease-out;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin: -0.5rem;
+        }
+
+        /* Login Prompt */
+        .login-prompt {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(to bottom, #F9FAFB, #FFFFFF);
+            border-radius: 16px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background: #EEF2FF;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
 
@@ -25,22 +259,22 @@
         <div class="comment-input-area">
             @if (currentUserId.HasValue)
             {
-                <form id="comment-form" autocomplete="off" class="main-form">
+                <form id="comment-form" autocomplete="off">
                     <input type="hidden" id="recipeId" value="@recipeId" />
                     <input type="hidden" id="userId" value="@currentUserId" />
 
                     <div class="d-flex gap-3">
-                        <div class="flex-shrink-0 d-none d-sm-block">
-                            <div class="avatar-placeholder bg-gradient-primary text-white">
-                                <i class="fas fa-pen"></i>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-placeholder">
+                                <i class="fas fa-user"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1">
-                            <textarea id="comment-content" required placeholder="What do you think about this recipe?" class="form-control custom-textarea" rows="3"></textarea>
+                            <textarea id="comment-content" required placeholder="What do you think about this recipe?" class="form-control custom-textarea" rows="2"></textarea>
 
-                            <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div class="d-flex justify-content-between align-items-center mt-3">
                                 <div class="rating-select-wrapper">
-                                    <select id="comment-rating" class="form-select form-select-sm border-0 bg-light">
+                                    <select id="comment-rating" class="form-select form-select-sm border-0 bg-light rounded-pill px-3">
                                         <option value="">Rate this recipe (Optional)</option>
                                         <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
                                         <option value="4">⭐⭐⭐⭐ Good</option>
@@ -60,12 +294,13 @@
             else
             {
                 <div class="login-prompt">
-                    <div class="icon-box mb-2">
+                    <div class="icon-box">
                         <i class="fas fa-lock"></i>
                     </div>
-                    <p class="mb-2 text-muted">Join the conversation</p>
-                    <a href="/Auth/Login" target="_top" class="btn btn-outline-primary btn-sm rounded-pill px-4">
-                        Log In to Comment
+                    <h6 class="fw-bold text-dark mb-1">Join the conversation</h6>
+                    <p class="text-muted small mb-3">Log in to rate recipes and share your thoughts with the community.</p>
+                    <a href="/Auth/Login" target="_top" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">
+                        Log In
                     </a>
                 </div>
             }
@@ -82,36 +317,35 @@
             else
             {
                 <div class="empty-state">
-                    <i class="far fa-comments fa-2x mb-3 text-muted opacity-50"></i>
-                    <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+                    <i class="far fa-comments fa-3x mb-3 opacity-25"></i>
+                    <p class="fw-medium">No comments yet</p>
+                    <p class="small opacity-75">Be the first to share your thoughts on this recipe!</p>
                 </div>
             }
         </div>
     </div>
 
-    @* Helper function for rendering comments *@
+    @* Helper Function: Render Comment (Server-side) *@
     @{
         Microsoft.AspNetCore.Html.IHtmlContent RenderComment(CommentDto c, int? currentUserId, bool isReply = false)
         {
             var cssClass = isReply ? "comment-reply" : "comment-thread";
-            var avatarUrl = string.IsNullOrEmpty(c.AvatarUrl) ? "https://ui-avatars.com/api/?name=" + c.Username + "&background=random" : c.AvatarUrl;
+            var avatarUrl = string.IsNullOrEmpty(c.AvatarUrl) ? "https://ui-avatars.com/api/?name=" + c.Username + "&background=random&color=fff" : c.AvatarUrl;
             var dateStr = c.CreatedAt?.ToLocalTime().ToString("MMM dd, yyyy • HH:mm") ?? "";
 
-            // Stars
             var starsHtml = "";
             if (c.Rating.HasValue)
             {
-                starsHtml = $"<div class='comment-rating text-warning ms-2'><i class='fas fa-star'></i> {c.Rating.Value}.0</div>";
+                starsHtml = $"<span class='text-warning ms-2 small'><i class='fas fa-star'></i> {c.Rating.Value}.0</span>";
             }
 
-            // Like State
             var likeClass = c.IsLiked ? "liked" : "";
             var heartIcon = c.IsLiked ? "fas fa-heart" : "far fa-heart";
 
-            // Buttons
+            // Buttons Logic
             var replyBtnHtml = !isReply ? $@"
         <button type='button' class='btn-action btn-reply' data-comment-id='{c.CommentId}'>
-        <i class='fas fa-reply'></i> Reply
+        <i class='fas fa-reply me-1'></i> Reply
         </button>" : "";
 
             var deleteBtnHtml = "";
@@ -119,24 +353,23 @@
             {
                 deleteBtnHtml = $@"
         <button type='button' class='btn-action btn-delete text-danger' data-comment-id='{c.CommentId}'>
-        <i class='far fa-trash-alt'></i> Delete
+        <i class='far fa-trash-alt me-1'></i> Delete
         </button>";
             }
 
-            // Recursion
+            // Replies
             var repliesHtml = "";
             if (!isReply && c.Replies != null && c.Replies.Any())
             {
                 repliesHtml = $"<div class='replies-container'>{string.Join("", c.Replies.Select(r => RenderComment(r, currentUserId, true).ToString()))}</div>";
             }
 
+            // Hidden Reply Form
             var replyFormHtml = !isReply ? $@"
-        <form class='reply-form mt-3' data-parent-id='{c.CommentId}' style='display:none;'>
-        <div class='d-flex gap-2'>
-        <div class='flex-grow-1'>
+        <form class='reply-form mt-3 ps-5' data-parent-id='{c.CommentId}' style='display:none;'>
+        <div class='d-flex gap-2 align-items-start'>
         <textarea class='form-control form-control-sm bg-light border-0 reply-content' rows='1' placeholder='Write a reply...'></textarea>
-        </div>
-        <button type='submit' class='btn btn-primary btn-sm rounded-circle shadow-sm' style='width:32px; height:32px; display:flex; align-items:center; justify-content:center;'>
+        <button type='submit' class='btn btn-primary btn-sm rounded-circle shadow-sm flex-shrink-0' style='width:32px; height:32px; display:flex; align-items:center; justify-content:center;'>
         <i class='fas fa-paper-plane'></i>
         </button>
         </div>
@@ -145,11 +378,11 @@
             return Html.Raw($@"
         <div class='{cssClass}' data-id='{c.CommentId}'>
         <div class='d-flex gap-3'>
-        <img src='{avatarUrl}' class='avatar rounded-circle' alt='{c.Username}' />
+        <img src='{avatarUrl}' class='avatar rounded-circle flex-shrink-0' alt='{c.Username}' />
         <div class='flex-grow-1 comment-content'>
         <div class='comment-bubble'>
         <div class='d-flex justify-content-between align-items-baseline mb-1'>
-        <div class='d-flex align-items-center'>
+        <div>
         <span class='author-name'>{c.Username}</span>
         {starsHtml}
         </div>
@@ -160,8 +393,8 @@
 
         <div class='comment-footer'>
         <button type='button' class='btn-action btn-like {likeClass}' data-id='{c.CommentId}'>
-        <i class='{heartIcon} heart-icon'></i>
-        <span class='like-count'>{c.LikesCount}</span> Likes
+        <i class='{heartIcon} heart-icon me-1'></i>
+        <span class='like-count'>{c.LikesCount}</span>
         </button>
         {replyBtnHtml}
         {deleteBtnHtml}
@@ -192,9 +425,42 @@
                 if (recipeId) connection.invoke('JoinRecipeGroup', parseInt(recipeId));
             }).catch(err => console.error(err));
 
-            // Real-time Updates
-            connection.on('ReceiveComment', () => window.location.reload());
+            // --- REAL-TIME: RECEIVE NEW COMMENT ---
+            connection.on('ReceiveComment', function (comment) {
+                // Remove empty state if present
+                const emptyState = document.querySelector('.empty-state');
+                if (emptyState) emptyState.remove();
 
+                const commentHtml = createCommentHTML(comment);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = commentHtml;
+                const newElement = tempDiv.firstElementChild;
+
+                // Add highlight effect class
+                newElement.querySelector('.comment-content').classList.add('highlight-new');
+
+                if (comment.parentCommentId) {
+                    // It's a reply
+                    const parentRow = document.querySelector(`[data-id="${comment.parentCommentId}"]`);
+                    if (parentRow) {
+                        let repliesContainer = parentRow.querySelector('.replies-container');
+                        if (!repliesContainer) {
+                            // Create container if first reply
+                            repliesContainer = document.createElement('div');
+                            repliesContainer.className = 'replies-container';
+                            // Insert after footer (or after reply form)
+                            const contentDiv = parentRow.querySelector('.comment-content');
+                            contentDiv.appendChild(repliesContainer);
+                        }
+                        repliesContainer.appendChild(newElement);
+                    }
+                } else {
+                    // Top-level comment: Prepend to list
+                    commentsList.insertBefore(newElement, commentsList.firstChild);
+                }
+            });
+
+            // --- REAL-TIME: LIKE ---
             connection.on('ReceiveCommentLike', (commentId, newCount) => {
                 const els = document.querySelectorAll(`[data-id="${commentId}"]`);
                 els.forEach(el => {
@@ -203,17 +469,90 @@
                 });
             });
 
+            // --- REAL-TIME: DELETE ---
             connection.on('ReceiveCommentDelete', (commentId) => {
                 const el = document.querySelector(`[data-id="${commentId}"]`);
                 if (el) {
                     el.style.transition = "all 0.3s ease";
                     el.style.opacity = "0";
-                    el.style.transform = "translateX(-20px)";
+                    el.style.transform = "translateX(20px)";
                     setTimeout(() => el.remove(), 300);
                 }
             });
 
-            // --- FORM SUBMISSION ---
+            // --- CLIENT-SIDE HTML GENERATOR (Matches Razor Helper) ---
+            function createCommentHTML(c) {
+                const avatarUrl = c.avatarUrl || `https://ui-avatars.com/api/?name=${c.username}&background=random&color=fff`;
+                const dateStr = new Date(c.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                let starsHtml = '';
+                if (c.rating) {
+                    starsHtml = `<span class='text-warning ms-2 small'><i class='fas fa-star'></i> ${c.rating}.0</span>`;
+                }
+
+                // Check ownership for buttons (weak check since JS can be manipulated, real check is on backend)
+                let deleteBtnHtml = '';
+                // Note: SignalR usually sends camelCase properties
+                if (currentUserId && c.userId == currentUserId) {
+                    deleteBtnHtml = `
+                    <button type='button' class='btn-action btn-delete text-danger' data-comment-id='${c.commentId}'>
+                        <i class='far fa-trash-alt me-1'></i> Delete
+                    </button>`;
+                }
+
+                let replyBtnHtml = '';
+                if (!c.parentCommentId) {
+                     replyBtnHtml = `
+                    <button type='button' class='btn-action btn-reply' data-comment-id='${c.commentId}'>
+                        <i class='fas fa-reply me-1'></i> Reply
+                    </button>`;
+                }
+
+                // Reply Form (Hidden)
+                const replyFormHtml = !c.parentCommentId ? `
+                    <form class='reply-form mt-3 ps-5' data-parent-id='${c.commentId}' style='display:none;'>
+                        <div class='d-flex gap-2 align-items-start'>
+                            <textarea class='form-control form-control-sm bg-light border-0 reply-content' rows='1' placeholder='Write a reply...'></textarea>
+                            <button type='submit' class='btn btn-primary btn-sm rounded-circle shadow-sm flex-shrink-0' style='width:32px; height:32px; display:flex; align-items:center; justify-content:center;'>
+                                <i class='fas fa-paper-plane'></i>
+                            </button>
+                        </div>
+                    </form>` : '';
+
+                const cssClass = c.parentCommentId ? "comment-reply" : "comment-thread";
+
+                return `
+                <div class='${cssClass}' data-id='${c.commentId}'>
+                    <div class='d-flex gap-3'>
+                        <img src='${avatarUrl}' class='avatar rounded-circle flex-shrink-0' alt='${c.username}' />
+                        <div class='flex-grow-1 comment-content'>
+                            <div class='comment-bubble'>
+                                <div class='d-flex justify-content-between align-items-baseline mb-1'>
+                                    <div>
+                                        <span class='author-name'>${c.username}</span>
+                                        ${starsHtml}
+                                    </div>
+                                    <span class='timestamp'>Just now</span>
+                                </div>
+                                <div class='comment-text'>${c.commentText}</div>
+                            </div>
+
+                            <div class='comment-footer'>
+                                <button type='button' class='btn-action btn-like' data-id='${c.commentId}'>
+                                    <i class='far fa-heart heart-icon me-1'></i>
+                                    <span class='like-count'>0</span>
+                                </button>
+                                ${replyBtnHtml}
+                                ${deleteBtnHtml}
+                            </div>
+                            ${replyFormHtml}
+                            <div class='replies-container'></div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // --- SUBMIT MAIN COMMENT ---
             const commentForm = document.getElementById('comment-form');
             if (commentForm) {
                 commentForm.addEventListener('submit', async function (e) {
@@ -221,11 +560,12 @@
                     const content = document.getElementById('comment-content').value.trim();
                     const rating = document.getElementById('comment-rating').value;
 
-                    if (!content) return; // Silent return or add UI feedback
-                    if (!currentUserId) { alert('Please login to comment.'); return; }
+                    if (!content) return;
+                    if (!currentUserId) { alert('Please login.'); return; }
 
+                    // Disable button
                     const btn = this.querySelector('button[type="submit"]');
-                    const originalText = btn.innerHTML;
+                    const originalContent = btn.innerHTML;
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
@@ -242,29 +582,36 @@
                             })
                         });
 
-                        if (!response.ok) throw new Error(await response.text());
-
+                        if (!response.ok) throw new Error();
                         const comment = await response.json();
+
+                        // Reset form
                         document.getElementById('comment-content').value = '';
                         document.getElementById('comment-rating').value = '';
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
 
+                        // Notify Server (SignalR)
                         connection.invoke('SendComment', parseInt(recipeId), comment);
-                        window.location.reload();
+
+                        // NOTE: We don't render manually here because ReceiveComment handles it for everyone, including us.
+                        // This prevents duplication.
+
                     } catch (err) {
                         console.error(err);
                         btn.disabled = false;
-                        btn.innerHTML = originalText;
+                        btn.innerHTML = originalContent;
                         alert('Failed to post comment.');
                     }
                 });
             }
 
-            // --- DELEGATED EVENTS ---
+            // --- DELEGATED EVENTS (Reply, Like, Delete) ---
             commentsList.addEventListener('click', function(e) {
                 const target = e.target.closest('button');
                 if (!target) return;
 
-                // Reply Button
+                // 1. Reply Button
                 if (target.classList.contains('btn-reply')) {
                     const commentId = target.getAttribute('data-comment-id');
                     const wrapper = target.closest('.comment-content');
@@ -281,66 +628,56 @@
                     }
                 }
 
-                // Like Button
+                // 2. Like Button
                 if (target.classList.contains('btn-like')) {
                     e.preventDefault();
                     const commentId = target.getAttribute('data-id');
                     const heartIcon = target.querySelector('.heart-icon');
                     const countSpan = target.querySelector('.like-count');
 
-                    // Immediate UI feedback (Optimistic UI)
+                    // Optimistic UI Update
                     const isLiked = target.classList.contains('liked');
                     target.classList.toggle('liked');
+
                     if (isLiked) {
                         heartIcon.classList.replace('fas', 'far');
-                        countSpan.innerText = parseInt(countSpan.innerText) - 1;
+                        countSpan.innerText = Math.max(0, parseInt(countSpan.innerText) - 1);
                     } else {
                         heartIcon.classList.replace('far', 'fas');
-                        heartIcon.classList.add('pop-animation');
-                        setTimeout(() => heartIcon.classList.remove('pop-animation'), 300);
                         countSpan.innerText = parseInt(countSpan.innerText) + 1;
                     }
 
                     fetch(`?handler=ToggleLike&commentId=${commentId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
+                    }).then(res => res.json()).then(data => {
                         if (data.success) {
-                            // Sync actual server data
-                            if (data.isLiked) {
-                                target.classList.add('liked');
-                                heartIcon.classList.replace('far', 'fas');
-                            } else {
-                                target.classList.remove('liked');
-                                heartIcon.classList.replace('fas', 'far');
-                            }
+                            // Sync real data
                             countSpan.innerText = data.newCount;
                             if (recipeId) connection.invoke('SendCommentLike', parseInt(recipeId), parseInt(commentId), data.newCount);
-                        } else if (data.message.includes("login")) {
-                            window.top.location.href = "/Auth/Login";
+                        } else {
+                            // Revert on error
+                            target.classList.toggle('liked');
+                            if (data.message.includes("login")) window.top.location.href = "/Auth/Login";
                         }
                     });
                 }
 
-                // Delete Button
+                // 3. Delete Button
                 if (target.classList.contains('btn-delete')) {
                     e.preventDefault();
-                    if (!confirm("Delete this comment?")) return;
+                    if (!confirm("Are you sure?")) return;
 
                     const commentId = target.getAttribute('data-comment-id');
                     const commentRow = target.closest(`[data-id="${commentId}"]`);
 
-                    // Optimistic UI removal
+                    // Fade out effect
                     commentRow.style.opacity = '0.5';
 
                     fetch(`?handler=Delete&commentId=${commentId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
+                    }).then(res => res.json()).then(data => {
                         if (data.success) {
                             commentRow.remove();
                             if (recipeId) connection.invoke('SendCommentDelete', parseInt(recipeId), parseInt(commentId));
@@ -352,7 +689,7 @@
                 }
             });
 
-            // Reply Form Submit
+            // --- SUBMIT REPLY FORM ---
             commentsList.addEventListener('submit', async function(e) {
                 if (e.target.classList.contains('reply-form')) {
                     e.preventDefault();
@@ -377,10 +714,15 @@
                                 parentCommentId: parseInt(parentId)
                             })
                         });
+
                         if (!response.ok) throw new Error();
                         const comment = await response.json();
+
+                        form.querySelector('.reply-content').value = '';
+                        form.style.display = 'none';
+                        btn.disabled = false;
+
                         connection.invoke('SendComment', parseInt(recipeId), comment);
-                        window.location.reload();
                     } catch {
                         alert('Failed to reply.');
                         btn.disabled = false;
@@ -389,206 +731,5 @@
             });
         });
     </script>
-
-    <style>
-        :root {
-            --primary-color: #4F46E5;
-            --secondary-color: #EC4899;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-            --bg-light: #F9FAFB;
-            --border-color: #E5E7EB;
-        }
-
-        body {
-            background-color: #FFFFFF;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            color: var(--text-main);
-            padding: 1rem;
-            overflow-x: hidden;
-        }
-
-        /* --- Input Area --- */
-        .comment-input-area {
-            background: #fff;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        .avatar-placeholder {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .custom-textarea {
-            background-color: var(--bg-light);
-            border: 1px solid transparent;
-            border-radius: 12px;
-            padding: 1rem;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-        }
-
-            .custom-textarea:focus {
-                background-color: #fff;
-                border-color: var(--primary-color);
-                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-            }
-
-        /* --- Comments List --- */
-        .comment-thread {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        /* Avatar styling */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Comment Bubble */
-        .comment-bubble {
-            /* No background for cleaner look, or light bg if preferred */
-        }
-
-        .author-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #111827;
-            margin-right: 0.5rem;
-        }
-
-        .timestamp {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .comment-text {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #374151;
-            margin-top: 0.25rem;
-        }
-
-        .comment-footer {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        /* --- Actions Buttons --- */
-        .btn-action {
-            background: none;
-            border: none;
-            padding: 0;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-            .btn-action:hover {
-                color: var(--primary-color);
-            }
-
-        /* Like Button States */
-        .btn-like.liked {
-            color: var(--secondary-color);
-        }
-
-        .btn-like:hover {
-            color: var(--secondary-color);
-        }
-
-        /* Animations */
-        @@keyframes pop {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.3);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .pop-animation {
-            animation: pop 0.3s ease;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* --- Replies --- */
-        .replies-container {
-            margin-top: 1rem;
-            padding-left: 1rem;
-            border-left: 2px solid #E5E7EB; /* Thread line */
-            margin-left: 0.8rem; /* Align under avatar center */
-        }
-
-        .comment-reply {
-            margin-top: 1rem;
-            position: relative;
-        }
-
-        /* Login Prompt */
-        .login-prompt {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg-light);
-            border-radius: 12px;
-            border: 1px dashed var(--border-color);
-        }
-
-        .icon-box {
-            width: 40px;
-            height: 40px;
-            background: #EEF2FF;
-            color: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-        }
-    </style>
 </body>
 </html>
